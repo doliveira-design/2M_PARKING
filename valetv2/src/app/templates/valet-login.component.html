@@ -1,0 +1,72 @@
+<h1>
+    Welcome to Valet Automation App
+</h1>
+<p>
+    Please login with your credentials to generate e-tickets.
+</p>
+
+<div>
+    <form #valetLogin="ngForm" class="form-container">
+        <div class="form-item">
+            <label for="uname">
+                Username
+            </label>
+            <input type="text"
+                required
+                placeholder="Enter username"
+                name="uname"
+                [(ngModel)]="valet.uname"
+                #uname="ngModel"
+                (focus)="onFocus('uname')"
+                (blur)="onBlur('uname')"
+                [ngClass]="{
+                    'input-invalid': uname.invalid && (uname.touched || loginPressed),
+                    'input-valid': uname.valid && uname.touched && !focus.uname
+                }"
+            >
+            <!-- form validation -->
+            <div class="error-container"
+                 *ngIf="uname.invalid && (uname.touched || uname.dirty)">
+                <div class="error"
+                    *ngIf="uname.errors.required">
+                    <span>
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </span>
+                    Username is required.
+                </div>
+            </div>
+        </div>
+        <div class="form-item">
+            <label for="pwd">
+                Password
+            </label>
+            <input type="password"
+                required
+                placeholder="Enter password"
+                name="pwd"
+                [(ngModel)]="valet.pwd"
+                #pwd="ngModel"
+                (focus)="onFocus('pwd')"
+                (blur)="onBlur('pwd')"
+                [ngClass]="{
+                    'input-invalid': pwd.invalid && (pwd.touched || loginPressed),
+                    'input-valid': pwd.valid && pwd.touched && !focus.pwd
+                }"
+            >
+            <!-- form validation -->
+            <div class="error-container"
+                *ngIf="pwd.invalid && (pwd.touched || pwd.dirty)">
+                <div class="error" *ngIf="pwd.errors.required">
+                    <span>
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </span>
+                    Password is required.
+                </div>
+            </div>
+        </div>
+        <button class="form-btn btn-blue"
+            (click)="login(valetLogin.form)">
+            Login
+        </button>
+    </form>
+</div>

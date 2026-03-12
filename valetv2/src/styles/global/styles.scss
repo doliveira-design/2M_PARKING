@@ -1,0 +1,157 @@
+/* global styles for the project */
+
+@import url('https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900');
+
+$silver: #BFBFBF;
+$light-white: #EEEEEE;
+$charcoal-black: #252525;
+$white-smoke: #ececec;
+$text-gray: #333333;
+$border-gray: #ccc;
+$danger-red: #e7163a;
+$success-green: #77d89c;
+$default-blue: #2c5cd5;
+$button-blue-hover: #244cb4ff;
+$button-hover-shadow: #b7cbff;
+$btn-blue-text: #E4F1FE;
+
+body, h1, h2, h3, h4, h5, h6, p {
+    padding: 10px 10px;
+    font-family: 'Roboto', Verdana, Tahoma, sans-serif;
+    color: $charcoal-black;
+}
+
+h1 {
+    text-transform: uppercase;
+    font-weight: 900;
+    letter-spacing: 1px;
+    word-spacing: 2px;
+}
+
+p {
+    color: $silver;
+}
+
+.nav-header {
+    display: grid;
+    grid-template-columns: 1fr;
+    background: $silver;
+    text-transform: uppercase;
+    font-size: 20px;
+}
+
+.form-container {
+    padding: 10px 10px;
+}
+
+.form-item {
+    display: grid;
+    grid-template-columns: 1fr;
+    margin: 20px 0px;
+    color: $charcoal-black;
+
+    label {
+        display: block;
+        text-transform: uppercase;
+        padding: 10px 2px;
+        font-weight: 900;
+    }
+
+    input {
+        display:block;
+        padding: 10px 10px;
+        font-size: 16px;
+        font-weight: 100;
+        color: #808080;
+        border-radius: 4px;
+        border: 1px solid $border-gray;
+        box-shadow: 0px 1px 2px $border-gray;
+
+        &:hover, &:focus, &:active {
+            box-shadow: 0px 2px 3px $border-gray;
+        }
+    }
+
+    input:disabled {
+        text-transform: uppercase;
+        cursor: not-allowed;
+        background: $white-smoke;
+        color: $border-gray;
+
+        &:hover, &:focus, &:active {
+            box-shadow: 0px 1px 2px $border-gray;
+        }
+    }
+}
+
+.form-btn {
+    width: 100%;
+    padding: 10px 10px;
+    font-family: 'Roboto';
+    font-size: 16px;
+    font-weight: 900;
+    text-transform: uppercase;
+    text-align: center;
+    border-radius: 4px;
+    border: none;
+    margin: 30px 0px;
+    cursor: pointer;
+}
+
+.btn-blue {
+    color: $btn-blue-text;
+    background: $default-blue;
+    border: 1px solid $default-blue;
+    letter-spacing: 2px;
+    word-spacing: 5px;
+
+    &:hover, &:focus, &:active {
+        background: $button-blue-hover;
+        border: 1px solid $button-blue-hover;
+        box-shadow: 0px 3px 3px $button-hover-shadow;
+        transition: 0.5s all;
+    }
+}
+
+.input-invalid {
+    // svg based on 'times-circle' from font-awesome fa-times-circle
+    // original license here: https://fontawesome.com/license
+    background: url('../../assets/icons/invalid.svg') right no-repeat;
+    border: 1px solid $danger-red !important;
+}
+
+.input-valid {
+    // svg based on 'check-circle' from font-awesome fa-check-circle
+    // original license here: https://fontawesome.com/license
+    background: url('../../assets/icons/valid.svg') right no-repeat;
+    border: 1px solid $success-green !important;
+}
+
+.error-container {
+    display: block;
+    margin: 7px 0px 0px 0px;
+    padding: 5px 5px;
+
+    .error {
+        margin-bottom: 5px;
+        font-family: 'Roboto', Verdana, Tahoma, sans-serif;
+        color: $danger-red;
+        font-weight: 300;
+
+        &:last-child {
+            margin-bottom: 0px;
+        }
+    }
+
+    span {
+        margin-right: 3px;
+    }
+}
+
+.no-margin-top {
+    margin-top: 0px;
+}
+
+.no-margin-bottom {
+    margin-bottom: 0px;
+}

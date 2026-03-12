@@ -1,0 +1,13 @@
+.container {
+    display: grid;
+    justify-content: center;
+    align-content: space-between;
+    // body padding + margin = 36px
+    height: calc(100vh - 36px);
+}
+.qr-code {
+    margin: 10px 0px;
+    padding: 10px 0px;
+    justify-self: center;
+}
+

@@ -1,0 +1,64 @@
+$border-gray: #ccc;
+$silver: #BFBFBF;
+$text-blue: #7495e8;
+
+body {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.intro-section {
+    display: grid;
+    justify-content: center;
+    align-content: space-around;
+    border-bottom: 1px solid $border-gray;
+    padding: 3vh 0vh 6vh 0vh;
+    margin-bottom: 4vh;
+
+    h1 {
+        margin: 0px 0px;
+        padding: 2px 2px;
+    }
+
+    p {
+        margin: 0px 0px;
+        padding: 2px 2px;
+        text-align: center;
+        text-transform: uppercase;
+        font-weight: 900;
+        letter-spacing: 1px;
+        word-spacing: 2px;
+    }
+}
+
+.ticket-container {
+    display: grid;
+    padding: 0vw 5vw;
+
+    .ticket-item {
+        display: block;
+        padding: 10px 10px;
+        margin: 10px 0px;
+        border-radius: 4px;
+        border: 1px solid $border-gray;
+        box-shadow: 0px 1px 2px $border-gray;
+
+        label {
+            color: $text-blue;
+            font-size: 18px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border-right: 2px solid $text-blue;
+        }
+
+        span {
+            margin-left: 10px;
+            font-size: 16px;
+            font-weight: 300;
+            color: #808080;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    }
+}

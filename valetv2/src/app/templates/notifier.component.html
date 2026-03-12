@@ -1,0 +1,19 @@
+<div *ngIf="showMessage()"
+    class="card-container"
+    [style.display]="styles.display"
+    [style.opacity]="styles.opacity"
+    [style.transition]="styles.transition"
+    [ngClass]="{
+        'error': notifier.message.type === 'error',
+        'info': notifier.message.type === 'info',
+        'success': notifier.message.type === 'success'
+    }"
+    (click)="hideMessage(0)"
+>
+    <div class="card-title">
+        {{ notifier.message.title }}
+    </div>
+    <div class="card-content">
+        {{ notifier.message.content }}
+    </div>
+</div>

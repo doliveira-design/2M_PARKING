@@ -1,0 +1,45 @@
+<div class="intro-section">
+    <h1>
+        Welcome
+    </h1>
+    <p>
+        {{ user.first_name }} {{ user.last_name }}
+    </p>
+</div>
+
+<div class="ticket-container">
+    <div class="ticket-item">
+        <label>
+            Car
+        </label>
+        <span>
+            {{ user.car.color }}
+            {{ user.car.manufacturer }}
+            {{ user.car.model }}
+        </span>
+    </div>
+    <div class="ticket-item">
+        <label>
+            License Plate No
+        </label>
+        <span>
+            {{ user.car.reg_no }}
+        </span>
+    </div>
+    <div class="ticket-item">
+        <label>
+            Amount {{ (user.ticket.paid)? "Paid" : "Due" }}
+        </label>
+        <span>
+            {{ user.ticket.amount | currency }}
+        </span>
+    </div>
+    <button class="form-btn btn-blue"
+        (click)="performCta()">
+        {{ buttonCtaText }}
+    </button>
+</div>
+
+<div *ngIf="showPayment">
+    <app-payment></app-payment>
+</div>

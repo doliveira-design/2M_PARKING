@@ -1,0 +1,26 @@
+<div class="container">
+    <div>
+        <h1 class="no-margin-bottom">
+            Thank you for using valet app.
+        </h1>
+        <p class="no-margin-top">
+            Please show this QR code to the valet to get your car
+        </p>
+    </div>
+
+    <div class="qr-code">
+        <qrcode [qrdata]="qrcode"
+                [size]="256"
+                [level]="'M'">
+        </qrcode>
+    </div>
+
+    <div>
+        <p>
+            Please press done when you collect your car.
+        </p>
+        <button class="form-btn btn-blue">
+            Done
+        </button>
+    </div>
+</div>

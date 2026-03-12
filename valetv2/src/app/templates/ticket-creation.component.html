@@ -1,0 +1,223 @@
+<div>
+    <h1>
+        Enter customer details to generate ticket
+    </h1>
+
+    <form #userDetailForm="ngForm" class="form-container">
+        <div class="form-item">
+            <label for="first_name">
+                First Name
+            </label>
+            <input type="text"
+                required
+                placeholder="Enter your first name"
+                [(ngModel)]="ticket.firstName"
+                name="first_name"
+                #firstName="ngModel"
+                (focus)="onFocus('firstName')"
+                (blur)="onBlur('firstName')"
+                [ngClass]="{
+                    'input-invalid': firstName.invalid &&
+                                    (firstName.touched || loginPressed),
+                    'input-valid': firstName.valid && firstName.touched && !focus.firstName
+                }"
+            >
+            <!-- form validation -->
+            <div class="error-container" *ngIf="firstName.invalid && (firstName.touched || firstName.dirty)">
+                <div class="error" *ngIf="firstName.errors.required">
+                    <span>
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </span>
+                    First Name is required.
+                </div>
+            </div>
+        </div>
+        <div class="form-item">
+            <label for="last_name">
+                Last Name
+            </label>
+            <input type="text"
+                required
+                placeholder="Enter your surname"
+                [(ngModel)]="ticket.lastName"
+                name="last_name"
+                #lastName="ngModel"
+                (focus)="onFocus('lastName')"
+                (blur)="onBlur('lastName')"
+                [ngClass]="{
+                    'input-invalid': lastName.invalid &&
+                                    (lastName.touched || loginPressed),
+                    'input-valid': lastName.valid && lastName.touched && !focus.lastName
+                }"
+            >
+            <!-- form validation -->
+            <div class="error-container" *ngIf="lastName.invalid && (lastName.touched || lastName.dirty)">
+                <div class="error" *ngIf="lastName.errors.required">
+                    <span>
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </span>
+                    Surname is required.
+                </div>
+            </div>
+        </div>
+        <div class="form-item">
+            <label for="phone_number">
+                Phone Number
+            </label>
+            <input type="tel"
+                required
+                placeholder="Pattern like: +92-123-4567890"
+                [(ngModel)]="ticket.phone"
+                name="phone_no"
+                #phone="ngModel"
+                pattern="[+]?\d{1,3}-\d{1,3}-\d{7,8}"
+                (focus)="onFocus('phone')"
+                (blur)="onBlur('phone')"
+                [ngClass]="{
+                    'input-invalid': phone.invalid &&
+                                    (phone.touched || loginPressed),
+                    'input-valid': phone.valid && phone.touched && !focus.phone
+                }"
+            >
+            <!-- form validation -->
+            <div class="error-container" *ngIf="phone.invalid && (phone.touched || phone.dirty)">
+                <div class="error" *ngIf="phone.errors.required">
+                    <span>
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </span>
+                    Phone Number is required.
+                </div>
+                <div class="error" *ngIf="phone.errors.pattern">
+                    <span>
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </span>
+                    The pattern does not match. Enter format like: +(2 digit country code)-(3 digit dialing code)-(7 digit phone no)
+                </div>
+            </div>
+        </div>
+        <div class="form-item">
+            <label for="reg_no">
+                Car Registration Number
+            </label>
+            <input type="text"
+                required
+                placeholder="Please enter your car's registration number"
+                [(ngModel)]="ticket.regNo"
+                name="reg_no"
+                #regNo="ngModel"
+                (focus)="onFocus('regNo')"
+                (blur)="onBlur('regNo')"
+                [ngClass]="{
+                    'input-invalid': regNo.invalid &&
+                                    (regNo.touched || loginPressed),
+                    'input-valid': regNo.valid && regNo.touched && !focus.regNo
+                }"
+            >
+            <!-- form validation -->
+            <div class="error-container" *ngIf="regNo.invalid && (regNo.touched || regNo.dirty)">
+                <div class="error" *ngIf="regNo.errors.required">
+                    <span>
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </span>
+                    Car Registration Number is required.
+                </div>
+            </div>
+        </div>
+        <div class="form-item">
+            <label for="manufacturer">
+                Car Manufacturer
+            </label>
+            <input type="text"
+                required
+                placeholder="Example: Honda"
+                [(ngModel)]="ticket.manufacturer"
+                name="manufacturer"
+                #manufacturer="ngModel"
+                (focus)="onFocus('manufacturer')"
+                (blur)="onBlur('manufacturer')"
+                [ngClass]="{
+                    'input-invalid': manufacturer.invalid &&
+                                    (manufacturer.touched || loginPressed),
+                    'input-valid': manufacturer.valid &&
+                                   manufacturer.touched && !focus.manufacturer
+                }"
+            >
+            <!-- form validation -->
+            <div class="error-container"
+                *ngIf="manufacturer.invalid &&
+                       (manufacturer.touched || manufacturer.dirty)">
+                <div class="error" *ngIf="manufacturer.errors.required">
+                    <span>
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </span>
+                    Car Manufacturer is required.
+                </div>
+            </div>
+        </div>
+        <div class="form-item">
+            <label for="model">
+                Car Model
+            </label>
+            <input type="text"
+                required
+                placeholder="Example: Accord"
+                [(ngModel)]="ticket.model"
+                name="model"
+                #model="ngModel"
+                (focus)="onFocus('model')"
+                (blur)="onBlur('model')"
+                [ngClass]="{
+                    'input-invalid': model.invalid &&
+                                    (model.touched || loginPressed),
+                    'input-valid': model.valid && model.touched && !focus.model
+                }"
+            >
+            <!-- form validation -->
+            <div class="error-container"
+                *ngIf="model.invalid &&
+                       (model.touched || model.dirty)">
+                <div class="error" *ngIf="model.errors.required">
+                    <span>
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </span>
+                    Car Model is required.
+                </div>
+            </div>
+        </div>
+        <div class="form-item">
+            <label for="color">
+                Car Color
+            </label>
+            <input type="text"
+                required
+                placeholder="Pearly White"
+                [(ngModel)]="ticket.color"
+                name="color"
+                #color="ngModel"
+                (focus)="onFocus('color')"
+                (blur)="onBlur('color')"
+                [ngClass]="{
+                    'input-invalid': color.invalid &&
+                                    (color.touched || loginPressed),
+                    'input-valid': color.valid && color.touched && !focus.color
+                }"
+            >
+            <!-- form validation -->
+            <div class="error-container"
+                *ngIf="color.invalid &&
+                       (color.touched || color.dirty)">
+                <div class="error" *ngIf="color.errors.required">
+                    <span>
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </span>
+                    Car Color is required.
+                </div>
+            </div>
+        </div>
+
+        <button class="form-btn btn-blue"
+            (click)="generateTicket(userDetailForm.form)">
+            Generate Ticket
+        </button>
+    </form>
+</div>
