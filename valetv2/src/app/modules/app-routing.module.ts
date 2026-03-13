@@ -10,6 +10,7 @@ import { InvalidRouteComponent } from '../components/invalid-route.component';
 import { UnauthorizedComponent } from '../components/unauthorized.component';
 
 const routes: Routes = [
+  { path: '', redirectTo: 'valet/login', pathMatch: 'full' },
   { path: 'valet/login', component: ValetLoginComponent },
   { path: 'valet/ticket', component: TicketCreationComponent },
   { path: 'user/:ticket_no/login', component: UserLoginComponent },
