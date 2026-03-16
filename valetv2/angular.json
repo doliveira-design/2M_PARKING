@@ -50,7 +50,8 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "valetv2:build"
+            "browserTarget": "valetv2:build",
+            "proxyConfig": "proxy.conf.json"
           },
           "configurations": {
             "production": {

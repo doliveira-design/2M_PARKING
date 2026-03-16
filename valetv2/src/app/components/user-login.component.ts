@@ -70,8 +70,8 @@ export class UserLoginComponent implements OnInit, OnDestroy {
                         this.tokenUtil.setToken(response.token);
                         this.notifier.addMessage(
                             'success',
-                            'Login Successful',
-                            'Successfully logged in to valet ticket interface'
+                            'Login Realizado',
+                            'Login realizado com sucesso no painel de tickets'
                         );
                         this.router.navigateByUrl(`user/${this.userModel.ticket_no}`,
                             { skipLocationChange: false });

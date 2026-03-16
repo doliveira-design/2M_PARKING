@@ -40,9 +40,9 @@ export class TicketVerificationComponent implements OnInit, OnDestroy {
             )
             .subscribe((response: any) => {
                 this.qrcode =
-                   `Ticket No: ${response.ticket_no}  \n
-                    Reg No: ${response.reg_no}  \n
-                    Amount: ${response.amount}  \n
+                   `Nº Ticket: ${response.ticket_no}  \n
+                    Placa: ${response.reg_no}  \n
+                    Valor: ${response.amount}  \n
                     Status: ${response.status}  `;
             });
     }

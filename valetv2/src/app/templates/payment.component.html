@@ -1,16 +1,16 @@
 <div class="container">
     <h2>
-        Pay for your ticket
+        Pague seu ticket
     </h2>
-    <p>You can use your Credit or Debit Card</p>
+    <p>Você pode usar seu Cartão de Crédito ou Débito</p>
 
     <form #paymentForm="ngForm" class="form-container">
         <div class="form-item">
             <label for="ccNum">
-                Card Number
+                Número do Cartão
             </label>
             <input type="text"
-                placeholder="Enter your 14 digit card no."
+                placeholder="Digite os 14 dígitos do cartão"
                 required
                 pattern="[0-9]{14}"
                 name="ccNum"
@@ -22,7 +22,7 @@
                 CVV
             </label>
             <input type="text"
-                placeholder="Enter your card's CVV number"
+                placeholder="Digite o CVV do cartão"
                 required
                 min="3"
                 max="5"
@@ -33,10 +33,10 @@
         </div>
         <div class="form-item">
             <label for="expiry">
-                Expiry
+                Validade
             </label>
             <input type="date"
-                placeholder="Enter your card's expiry date"
+                placeholder="Digite a data de validade do cartão"
                 required
                 min="2018-08-27"
                 max="2030-08-27"
@@ -46,7 +46,7 @@
         </div>
         <button class="form-btn btn-blue"
             (click)="callPaymentApi(paymentForm.form)">
-            Pay
+            Pagar
         </button>
     </form>
 </div>

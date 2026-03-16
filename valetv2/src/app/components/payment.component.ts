@@ -45,8 +45,8 @@ export class PaymentComponent implements OnInit, OnDestroy {
             .subscribe((response) => {
                 this.notifier.addMessage(
                     'success',
-                    'Ticket Paid',
-                    'Payment for the valet ticket was successfully completed'
+                    'Ticket Pago',
+                    'Pagamento do ticket realizado com sucesso'
                 );
                 form.reset();
                 this.router.navigateByUrl(`validate/${ticket_no}`, { skipLocationChange: false });

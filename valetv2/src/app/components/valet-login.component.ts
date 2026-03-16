@@ -50,8 +50,8 @@ export class ValetLoginComponent implements OnInit, OnDestroy {
                         this.spinner.hide();
                         this.notifier.addMessage(
                             'success',
-                            'Login Successful',
-                            'Successfully logged in to valet dashboard'
+                            'Login Realizado',
+                            'Login realizado com sucesso no painel do manobrista'
                         );
                         this.router.navigateByUrl(`valet/ticket`,
                             { skipLocationChange: false });

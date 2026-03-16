@@ -1,16 +1,16 @@
 <div>
     <h1>
-        Enter customer details to generate ticket
+        Preencha os dados do cliente para gerar o ticket
     </h1>
 
     <form #userDetailForm="ngForm" class="form-container">
         <div class="form-item">
             <label for="first_name">
-                First Name
+                Nome
             </label>
             <input type="text"
                 required
-                placeholder="Enter your first name"
+                placeholder="Digite o nome"
                 [(ngModel)]="ticket.firstName"
                 name="first_name"
                 #firstName="ngModel"
@@ -28,17 +28,17 @@
                     <span>
                         <i class="fas fa-exclamation-triangle"></i>
                     </span>
-                    First Name is required.
+                    Nome é obrigatório.
                 </div>
             </div>
         </div>
         <div class="form-item">
             <label for="last_name">
-                Last Name
+                Sobrenome
             </label>
             <input type="text"
                 required
-                placeholder="Enter your surname"
+                placeholder="Digite o sobrenome"
                 [(ngModel)]="ticket.lastName"
                 name="last_name"
                 #lastName="ngModel"
@@ -56,17 +56,17 @@
                     <span>
                         <i class="fas fa-exclamation-triangle"></i>
                     </span>
-                    Surname is required.
+                    Sobrenome é obrigatório.
                 </div>
             </div>
         </div>
         <div class="form-item">
             <label for="phone_number">
-                Phone Number
+                Telefone
             </label>
             <input type="tel"
                 required
-                placeholder="Pattern like: +92-123-4567890"
+                placeholder="Formato: +55-11-912345678"
                 [(ngModel)]="ticket.phone"
                 name="phone_no"
                 #phone="ngModel"
@@ -85,23 +85,23 @@
                     <span>
                         <i class="fas fa-exclamation-triangle"></i>
                     </span>
-                    Phone Number is required.
+                    Telefone é obrigatório.
                 </div>
                 <div class="error" *ngIf="phone.errors.pattern">
                     <span>
                         <i class="fas fa-exclamation-triangle"></i>
                     </span>
-                    The pattern does not match. Enter format like: +(2 digit country code)-(3 digit dialing code)-(7 digit phone no)
+                    O formato não corresponde. Digite no formato: +(código do país)-(código da cidade)-(número do telefone)
                 </div>
             </div>
         </div>
         <div class="form-item">
             <label for="reg_no">
-                Car Registration Number
+                Placa do Veículo
             </label>
             <input type="text"
                 required
-                placeholder="Please enter your car's registration number"
+                placeholder="Digite a placa do veículo"
                 [(ngModel)]="ticket.regNo"
                 name="reg_no"
                 #regNo="ngModel"
@@ -119,17 +119,17 @@
                     <span>
                         <i class="fas fa-exclamation-triangle"></i>
                     </span>
-                    Car Registration Number is required.
+                    Placa do veículo é obrigatória.
                 </div>
             </div>
         </div>
         <div class="form-item">
             <label for="manufacturer">
-                Car Manufacturer
+                Fabricante do Veículo
             </label>
             <input type="text"
                 required
-                placeholder="Example: Honda"
+                placeholder="Exemplo: Honda"
                 [(ngModel)]="ticket.manufacturer"
                 name="manufacturer"
                 #manufacturer="ngModel"
@@ -150,17 +150,17 @@
                     <span>
                         <i class="fas fa-exclamation-triangle"></i>
                     </span>
-                    Car Manufacturer is required.
+                    Fabricante do veículo é obrigatório.
                 </div>
             </div>
         </div>
         <div class="form-item">
             <label for="model">
-                Car Model
+                Modelo do Veículo
             </label>
             <input type="text"
                 required
-                placeholder="Example: Accord"
+                placeholder="Exemplo: Corolla"
                 [(ngModel)]="ticket.model"
                 name="model"
                 #model="ngModel"
@@ -180,17 +180,17 @@
                     <span>
                         <i class="fas fa-exclamation-triangle"></i>
                     </span>
-                    Car Model is required.
+                    Modelo do veículo é obrigatório.
                 </div>
             </div>
         </div>
         <div class="form-item">
             <label for="color">
-                Car Color
+                Cor do Veículo
             </label>
             <input type="text"
                 required
-                placeholder="Pearly White"
+                placeholder="Branco Pérola"
                 [(ngModel)]="ticket.color"
                 name="color"
                 #color="ngModel"
@@ -210,14 +210,14 @@
                     <span>
                         <i class="fas fa-exclamation-triangle"></i>
                     </span>
-                    Car Color is required.
+                    Cor do veículo é obrigatória.
                 </div>
             </div>
         </div>
 
         <button class="form-btn btn-blue"
             (click)="generateTicket(userDetailForm.form)">
-            Generate Ticket
+            Gerar Ticket
         </button>
     </form>
 </div>

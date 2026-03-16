@@ -1,28 +1,14 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 
-import { catchError } from 'rxjs/operators';
-
-import { environment } from '../../environments/environment';
+import { of } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TokenUtilService {
 
-  url = null;
-
-  constructor(private http: HttpClient, private router: Router) {
-    this.url = environment.serverBaseUrl;
-  }
-
-  getAuthHeader(token) {
-    return {
-      headers: new HttpHeaders({
-        'authorization': token
-      })
-    };
+  constructor(private router: Router) {
   }
 
   setToken(token, name?: string) {
@@ -43,20 +29,12 @@ export class TokenUtilService {
 
   isTokenValid(path?: Boolean, tokenName?: string) {
     const tokenExists = this.checkTokenExists(tokenName);
-    const urlPath = path ? '/valet/verify' : '/user/verify';
 
     if (!tokenExists) {
       this.router.navigateByUrl('/', { skipLocationChange: false });
+      return of(false);
     }
 
-    const token = this.getToken(tokenName);
-    return this.http.get(`${this.url}${urlPath}`, this.getAuthHeader(token))
-      .pipe(
-        catchError((err) => {
-          // TODO: navigate to unauthorized route instead
-          this.router.navigateByUrl('/', { skipLocationChange: false });
-          throw err;
-        })
-      );
+    return of(true);
   }
 }

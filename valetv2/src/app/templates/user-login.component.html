@@ -1,11 +1,11 @@
 <div class="container">
     <h1>
-        Please login to view your e-ticket
+        Faça login para ver seu ticket eletrônico
     </h1>
     <form #loginForm="ngForm" class="form-container">
         <div class="form-item">
             <label for="ticket_no">
-                Ticket No.
+                Nº do Ticket
             </label>
             <input type="text"
                 name="ticket_no"
@@ -16,11 +16,11 @@
         </div>
         <div class="form-item">
             <label for="phone">
-                Phone No.
+                Telefone
             </label>
             <input type="tel"
                 name="phone"
-                placeholder="Pattern like: +92-123-4567890"
+                placeholder="Formato: +55-11-912345678"
                 [(ngModel)]="userModel.phone"
                 #phone="ngModel"
                 required
@@ -40,23 +40,23 @@
                     <span>
                         <i class="fas fa-exclamation-triangle"></i>
                     </span>
-                    Phone Number is required.
+                    Telefone é obrigatório.
                 </div>
                 <div class="error" *ngIf="phone.errors.pattern">
                     <span>
                         <i class="fas fa-exclamation-triangle"></i>
                     </span>
-                    The pattern does not match. Enter format like: +(2 digit country code)-(3 digit dialing code)-(7 digit phone no)
+                    O formato não corresponde. Digite no formato: +(código do país)-(código da cidade)-(número do telefone)
                 </div>
             </div>
         </div>
         <div class="form-item">
             <label for="reg_no">
-                Car Registration No.
+                Placa do Veículo
             </label>
             <input type="text"
                 name="reg_no"
-                placeholder="Enter your car's registration number"
+                placeholder="Digite a placa do seu veículo"
                 [(ngModel)]="userModel.reg_no"
                 #regNo="ngModel"
                 required
@@ -75,13 +75,13 @@
                     <span>
                         <i class="fas fa-exclamation-triangle"></i>
                     </span>
-                    Car license plate no. is required.
+                    Placa do veículo é obrigatória.
                 </div>
             </div>
         </div>
         <button class="form-btn btn-blue"
             (click)="login(loginForm.form)">
-            Login and view ticket
+            Entrar e ver ticket
         </button>
     </form>
 </div>

@@ -1,6 +1,6 @@
 <div class="intro-section">
     <h1>
-        Welcome
+        Bem-vindo
     </h1>
     <p>
         {{ user.first_name }} {{ user.last_name }}
@@ -10,7 +10,7 @@
 <div class="ticket-container">
     <div class="ticket-item">
         <label>
-            Car
+            Veículo
         </label>
         <span>
             {{ user.car.color }}
@@ -20,7 +20,7 @@
     </div>
     <div class="ticket-item">
         <label>
-            License Plate No
+            Placa
         </label>
         <span>
             {{ user.car.reg_no }}
@@ -28,7 +28,7 @@
     </div>
     <div class="ticket-item">
         <label>
-            Amount {{ (user.ticket.paid)? "Paid" : "Due" }}
+            Valor {{ (user.ticket.paid)? "Pago" : "Pendente" }}
         </label>
         <span>
             {{ user.ticket.amount | currency }}

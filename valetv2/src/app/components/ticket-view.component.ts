@@ -66,7 +66,7 @@ export class TicketViewComponent implements OnInit, OnDestroy {
             .subscribe((response) => {
                 this.user = response;
                 this.buttonCtaText = this.user.ticket.paid ?
-                    'Call Car' : 'Make Payment';
+                    'Chamar Veículo' : 'Efetuar Pagamento';
                 this.ticketPaid = this.user.ticket.paid;
             });
     }
@@ -78,8 +78,8 @@ export class TicketViewComponent implements OnInit, OnDestroy {
         if (!this.showPayment) {
             this.notifier.addMessage(
                 'info',
-                'Car Called',
-                'You have requested for your car.'
+                'Veículo Chamado',
+                'Seu veículo foi solicitado.'
             );
             this.router.navigateByUrl(`validate/${this.ticket_no}`,
                 { skipLocationChange: false });

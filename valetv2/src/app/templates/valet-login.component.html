@@ -1,19 +1,19 @@
 <h1>
-    Welcome to Valet Automation App
+    Bem-vindo ao 2M Parking
 </h1>
 <p>
-    Please login with your credentials to generate e-tickets.
+    Faça login com suas credenciais para gerar tickets eletrônicos.
 </p>
 
 <div>
     <form #valetLogin="ngForm" class="form-container">
         <div class="form-item">
             <label for="uname">
-                Username
+                Usuário
             </label>
             <input type="text"
                 required
-                placeholder="Enter username"
+                placeholder="Digite o usuário"
                 name="uname"
                 [(ngModel)]="valet.uname"
                 #uname="ngModel"
@@ -32,17 +32,17 @@
                     <span>
                         <i class="fas fa-exclamation-triangle"></i>
                     </span>
-                    Username is required.
+                    Usuário é obrigatório.
                 </div>
             </div>
         </div>
         <div class="form-item">
             <label for="pwd">
-                Password
+                Senha
             </label>
             <input type="password"
                 required
-                placeholder="Enter password"
+                placeholder="Digite a senha"
                 name="pwd"
                 [(ngModel)]="valet.pwd"
                 #pwd="ngModel"
@@ -60,13 +60,13 @@
                     <span>
                         <i class="fas fa-exclamation-triangle"></i>
                     </span>
-                    Password is required.
+                    Senha é obrigatória.
                 </div>
             </div>
         </div>
         <button class="form-btn btn-blue"
             (click)="login(valetLogin.form)">
-            Login
+            Entrar
         </button>
     </form>
 </div>

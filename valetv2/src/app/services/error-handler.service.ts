@@ -17,11 +17,11 @@ export class ErrorHandlerService {
   };
 
   errorMessages = {
-    400: 'The inputs you provided resulted in a bad request. Please try again with valid data.',
-    401: 'You are not authorized to view the requested URL. Please login to view the page.',
-    404: `The resource that you requested does not exist on the server.
-          You might have provided incorrect data. Please try again or contact technical support for help.`,
-    500: 'There seems to be a problem processing your request. Please try again.'
+    400: 'Os dados fornecidos resultaram em uma requisição inválida. Tente novamente com dados válidos.',
+    401: 'Você não está autorizado a acessar esta página. Faça login para continuar.',
+    404: `O recurso solicitado não existe no servidor.
+          Verifique os dados informados e tente novamente ou entre em contato com o suporte técnico.`,
+    500: 'Houve um problema ao processar sua solicitação. Tente novamente.'
   };
 
   constructor(private notifier: NotifierService,
@@ -31,7 +31,7 @@ export class ErrorHandlerService {
   handleError(err) {
     this.spinner.hide();
     const code: number = err.status || 500;
-    this.notifier.addMessage('error', 'Error', this.errorMessages[code]);
+    this.notifier.addMessage('error', 'Erro', this.errorMessages[code]);
     switch (code) {
       case 401:
         this.router.navigateByUrl(`/unauthorized`,
@@ -51,10 +51,10 @@ export class ErrorHandlerService {
     let errMsg = this.errorMessages[code];
 
     if (code === 401 || code === 404) {
-      errMsg = 'The username and (or) password is incorrect. Please try again.';
+      errMsg = 'Usuário e/ou senha incorretos. Tente novamente.';
     }
 
-    this.notifier.addMessage('error', 'Error', errMsg);
+    this.notifier.addMessage('error', 'Erro', errMsg);
   }
 }
 

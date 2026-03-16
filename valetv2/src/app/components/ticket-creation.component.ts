@@ -68,8 +68,8 @@ export class TicketCreationComponent implements OnInit, OnDestroy {
                     this.spinner.hide();
                     this.notifier.addMessage(
                         'success',
-                        'Ticket Generated',
-                        'New valet e-ticket generated!'
+                        'Ticket Gerado',
+                        'Novo ticket eletrônico gerado com sucesso!'
                     );
                     form.reset();
                     this.loginPressed = false;
