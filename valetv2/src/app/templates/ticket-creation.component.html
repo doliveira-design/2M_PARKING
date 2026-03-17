@@ -19,8 +19,10 @@
                 [(ngModel)]="ticket.firstName"
                 name="first_name"
                 #firstName="ngModel"
+                pattern="^[A-Za-zÀ-ÿ]+(\s[A-Za-zÀ-ÿ]+)*$"
                 (focus)="onFocus('firstName')"
                 (blur)="onBlur('firstName')"
+                (input)="onNameInput($event, 'firstName')"
                 [ngClass]="{
                     'input-invalid': firstName.invalid &&
                                     (firstName.touched || loginPressed),
@@ -35,6 +37,12 @@
                     </span>
                     Nome é obrigatório.
                 </div>
+                <div class="error" *ngIf="firstName.errors.pattern && !firstName.errors.required">
+                    <span>
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </span>
+                    Nome deve conter apenas letras.
+                </div>
             </div>
         </div>
         <div class="form-item">
@@ -47,8 +55,10 @@
                 [(ngModel)]="ticket.lastName"
                 name="last_name"
                 #lastName="ngModel"
+                pattern="^[A-Za-zÀ-ÿ]+(\s[A-Za-zÀ-ÿ]+)*$"
                 (focus)="onFocus('lastName')"
                 (blur)="onBlur('lastName')"
+                (input)="onNameInput($event, 'lastName')"
                 [ngClass]="{
                     'input-invalid': lastName.invalid &&
                                     (lastName.touched || loginPressed),
@@ -62,6 +72,12 @@
                         <i class="fas fa-exclamation-triangle"></i>
                     </span>
                     Sobrenome é obrigatório.
+                </div>
+                <div class="error" *ngIf="lastName.errors.pattern && !lastName.errors.required">
+                    <span>
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </span>
+                    Sobrenome deve conter apenas letras.
                 </div>
             </div>
         </div>
@@ -149,8 +165,10 @@
                 [(ngModel)]="ticket.manufacturer"
                 name="manufacturer"
                 #manufacturer="ngModel"
+                pattern="^[A-Za-zÀ-ÿ]+(\s[A-Za-zÀ-ÿ]+)*$"
                 (focus)="onFocus('manufacturer')"
                 (blur)="onBlur('manufacturer')"
+                (input)="onNameInput($event, 'manufacturer')"
                 [ngClass]="{
                     'input-invalid': manufacturer.invalid &&
                                     (manufacturer.touched || loginPressed),
@@ -168,6 +186,12 @@
                     </span>
                     Fabricante do veículo é obrigatório.
                 </div>
+                <div class="error" *ngIf="manufacturer.errors.pattern && !manufacturer.errors.required">
+                    <span>
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </span>
+                    Fabricante deve conter apenas letras.
+                </div>
             </div>
         </div>
         <div class="form-item">
@@ -180,8 +204,10 @@
                 [(ngModel)]="ticket.model"
                 name="model"
                 #model="ngModel"
+                pattern="^[A-Za-zÀ-ÿ0-9]+(\s[A-Za-zÀ-ÿ0-9]+)*$"
                 (focus)="onFocus('model')"
                 (blur)="onBlur('model')"
+                (input)="onNameInput($event, 'model')"
                 [ngClass]="{
                     'input-invalid': model.invalid &&
                                     (model.touched || loginPressed),
@@ -197,6 +223,12 @@
                         <i class="fas fa-exclamation-triangle"></i>
                     </span>
                     Modelo do veículo é obrigatório.
+                </div>
+                <div class="error" *ngIf="model.errors.pattern && !model.errors.required">
+                    <span>
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </span>
+                    Modelo deve conter apenas letras e números.
                 </div>
             </div>
         </div>

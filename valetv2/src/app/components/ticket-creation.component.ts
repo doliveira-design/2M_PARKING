@@ -58,6 +58,18 @@ export class TicketCreationComponent implements OnInit, OnDestroy {
         this.sub.unsubscribe();
     }
 
+    onNameInput(event, field: string) {
+        const input = event.target;
+        // Remove caracteres não permitidos (apenas letras, acentuadas e espaços)
+        let value = input.value.replace(/[^A-Za-zÀ-ÿ\s]/g, '');
+        // Capitaliza a primeira letra e a letra após cada espaço
+        value = value.replace(/(^|\s+)(\S)/g, (match, space, char) => space + char.toUpperCase());
+        // Remove espaços duplos
+        value = value.replace(/\s{2,}/g, ' ');
+        this.ticket[field] = value;
+        input.value = value;
+    }
+
     onPhoneInput(event) {
         const input = event.target;
         const formatted = this.phoneUtil.applyMask(input.value);
