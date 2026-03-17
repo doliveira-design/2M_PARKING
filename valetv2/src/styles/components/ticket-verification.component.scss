@@ -102,6 +102,23 @@
     text-align: center;
 }
 
+.btn-test {
+    background: #ff9800 !important;
+    color: #fff !important;
+    border: 2px dashed #e68900 !important;
+    margin-top: 10px;
+    width: 100%;
+    font-weight: bold;
+
+    &:hover {
+        background: #e68900 !important;
+    }
+
+    i {
+        margin-right: 5px;
+    }
+}
+
 .success-text {
     color: #2c8c51;
     font-weight: bold;

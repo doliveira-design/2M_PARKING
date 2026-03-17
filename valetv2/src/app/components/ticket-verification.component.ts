@@ -71,6 +71,33 @@ export class TicketVerificationComponent implements OnInit, OnDestroy {
         return this.plateUtil.formatPlate(plate);
     }
 
+    simulatePayment() {
+        if (!this.ticketResult || !this.ticketResult.ticket_no) return;
+
+        this.spinner.show();
+        this.data.updatePaymentStatus(this.ticketResult.ticket_no)
+            .subscribe(
+                () => {
+                    this.spinner.hide();
+                    this.ticketResult.paid = true;
+                    this.ticketResult.status = 'paid';
+                    this.notifier.addMessage(
+                        'success',
+                        'Pagamento Simulado',
+                        `Ticket ${this.ticketResult.ticket_no} marcado como PAGO.`
+                    );
+                },
+                (err) => {
+                    this.spinner.hide();
+                    this.notifier.addMessage(
+                        'error',
+                        'Erro',
+                        'Não foi possível simular o pagamento.'
+                    );
+                }
+            );
+    }
+
     clearSearch() {
         this.plateSearch = '';
         this.ticketResult = null;

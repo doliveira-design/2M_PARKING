@@ -62,6 +62,9 @@
                 <i class="fas fa-exclamation-triangle"></i>
                 Pagamento pendente! O cliente deve efetuar o pagamento antes de retirar o veículo.
             </p>
+            <button class="form-btn btn-test" (click)="simulatePayment()">
+                <i class="fas fa-flask"></i> Simular Pagamento (Teste)
+            </button>
         </div>
 
         <div class="result-action" *ngIf="ticketResult.paid">
