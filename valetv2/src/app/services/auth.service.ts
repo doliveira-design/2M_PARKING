@@ -5,6 +5,7 @@ import { from, throwError } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 
 import { ErrorHandlerService } from '../services/error-handler.service';
+import { PhoneUtilService } from '../services/phone-util.service';
 import { Md5 } from 'ts-md5/dist/md5';
 
 @Injectable({
@@ -12,7 +13,7 @@ import { Md5 } from 'ts-md5/dist/md5';
 })
 export class AuthService {
 
-  constructor(private db: AngularFirestore, private errHandler: ErrorHandlerService) {
+  constructor(private db: AngularFirestore, private errHandler: ErrorHandlerService, private phoneUtil: PhoneUtilService) {
   }
 
   loginUser(ticket_no, phone, reg_no) {
@@ -30,7 +31,7 @@ export class AuthService {
 
         const ticket = snapshot.docs[0].data();
 
-        if (ticket.phone_no !== phone || ticket.reg_no !== reg_no.toUpperCase()) {
+        if (!this.phoneUtil.phonesMatch(ticket.phone_no, phone) || ticket.reg_no !== reg_no.toUpperCase()) {
           const err = { status: 401 };
           this.errHandler.authError(err);
           return throwError(err);

@@ -5,6 +5,7 @@ import { from } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 
 import { ErrorHandlerService } from './error-handler.service';
+import { PhoneUtilService } from './phone-util.service';
 
 import * as firebase from 'firebase/app';
 
@@ -13,7 +14,7 @@ import * as firebase from 'firebase/app';
 })
 export class DataService {
 
-  constructor(private db: AngularFirestore, private errHandler: ErrorHandlerService) {
+  constructor(private db: AngularFirestore, private errHandler: ErrorHandlerService, private phoneUtil: PhoneUtilService) {
   }
 
   getUser(ticketNo, token?) {
@@ -120,7 +121,7 @@ export class DataService {
           ticket_no: ticketNo,
           first_name: values.first_name,
           last_name: values.last_name,
-          phone_no: values.phone_no,
+          phone_no: this.phoneUtil.formatPhone(values.phone_no),
           reg_no: (values.reg_no || '').toUpperCase(),
           manufacturer: values.manufacturer || '',
           model: values.model || '',

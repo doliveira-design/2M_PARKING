@@ -4,6 +4,7 @@ import { Subscription } from 'rxjs';
 import { DataService } from '../services/data.service';
 import { TokenUtilService } from '../services/token-util.service';
 import { NotifierService } from '../services/notifier.service';
+import { PhoneUtilService } from '../services/phone-util.service';
 import { NgxSpinnerService } from 'ngx-spinner';
 
 @Component({
@@ -41,6 +42,7 @@ export class TicketCreationComponent implements OnInit, OnDestroy {
     constructor(private data: DataService,
         private tokenUtil: TokenUtilService,
         private notifier: NotifierService,
+        private phoneUtil: PhoneUtilService,
         private spinner: NgxSpinnerService
     ) { }
 
@@ -53,6 +55,13 @@ export class TicketCreationComponent implements OnInit, OnDestroy {
         this.sub.unsubscribe();
     }
 
+    onPhoneInput(event) {
+        const input = event.target;
+        const formatted = this.phoneUtil.applyMask(input.value);
+        this.ticket.phone = formatted;
+        input.value = formatted;
+    }
+
     generateTicket(form) {
         this.spinner.show();
 
@@ -61,6 +70,9 @@ export class TicketCreationComponent implements OnInit, OnDestroy {
 
         // replacing dashes from car license plate & converting to uppercase
         form.value.reg_no = form.value.reg_no.replace('-', '').toUpperCase();
+
+        // normalizar telefone no formato padrão
+        form.value.phone_no = this.phoneUtil.formatPhone(form.value.phone_no);
 
         if (status === 'valid'.toUpperCase()) {
             this.data.createTicket(form.value, this.tokenUtil.getToken('token_v'))

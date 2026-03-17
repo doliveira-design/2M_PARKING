@@ -9,6 +9,37 @@ const JWT_SECRET = process.env.JWT_SECRET || "2m-parking-secret-key-2026";
 const JWT_EXPIRATION = "24h";
 
 // ============================================
+// Helper: Normalizar telefone
+// ============================================
+function stripPhone(phone) {
+  return (phone || "").replace(/\D/g, "");
+}
+
+function formatPhone(phone) {
+  const digits = stripPhone(phone);
+  if (digits.length < 12 || digits.length > 13) {
+    return phone;
+  }
+  const countryCode = digits.substring(0, 2);
+  const areaCode = digits.substring(2, 4);
+  const remaining = digits.substring(4);
+  let firstPart;
+  let secondPart;
+  if (remaining.length === 9) {
+    firstPart = remaining.substring(0, 5);
+    secondPart = remaining.substring(5);
+  } else {
+    firstPart = remaining.substring(0, 4);
+    secondPart = remaining.substring(4);
+  }
+  return `+${countryCode} (${areaCode}) ${firstPart}-${secondPart}`;
+}
+
+function phonesMatch(phone1, phone2) {
+  return stripPhone(phone1) === stripPhone(phone2);
+}
+
+// ============================================
 // Helper: Verificar token JWT
 // ============================================
 function verifyToken(req) {
@@ -102,7 +133,7 @@ exports.authorizeUser = functions.https.onRequest(async (req, res) => {
     const ticketDoc = snapshot.docs[0];
     const ticket = ticketDoc.data();
 
-    if (ticket.phone_no !== phone || ticket.reg_no !== reg_no.toUpperCase()) {
+    if (!phonesMatch(ticket.phone_no, phone) || ticket.reg_no !== reg_no.toUpperCase()) {
       return res.status(401).json({auth: false, error: "Invalid credentials"});
     }
 
@@ -177,6 +208,13 @@ exports.createTicket = functions.https.onRequest(async (req, res) => {
       return res.status(400).json({error: "Required fields missing"});
     }
 
+    // Validar e normalizar telefone
+    const phoneDigits = stripPhone(phone_no);
+    if (phoneDigits.length < 12 || phoneDigits.length > 13) {
+      return res.status(400).json({error: "Telefone inválido. Use o formato: +55 (XX) XXXXX-XXXX"});
+    }
+    const normalizedPhone = formatPhone(phone_no);
+
     // Gerar número de ticket único
     const counterRef = db.collection("counters").doc("tickets");
     const counterDoc = await counterRef.get();
@@ -193,7 +231,7 @@ exports.createTicket = functions.https.onRequest(async (req, res) => {
       ticket_no: ticketNo,
       first_name,
       last_name,
-      phone_no,
+      phone_no: normalizedPhone,
       reg_no: reg_no.toUpperCase(),
       manufacturer: manufacturer || "",
       model: model || "",

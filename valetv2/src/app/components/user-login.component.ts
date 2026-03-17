@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { TokenUtilService } from '../services/token-util.service';
 import { NotifierService } from '../services/notifier.service';
+import { PhoneUtilService } from '../services/phone-util.service';
 import { NgxSpinnerService } from 'ngx-spinner';
 
 import { AuthResponse } from '../interfaces/AuthResponse';
@@ -33,6 +34,7 @@ export class UserLoginComponent implements OnInit, OnDestroy {
     constructor(private auth: AuthService,
         private tokenUtil: TokenUtilService,
         private notifier: NotifierService,
+        private phoneUtil: PhoneUtilService,
         private route: ActivatedRoute,
         private router: Router,
         private spinner: NgxSpinnerService
@@ -49,6 +51,13 @@ export class UserLoginComponent implements OnInit, OnDestroy {
         this.subscription.unsubscribe();
     }
 
+    onPhoneInput(event) {
+        const input = event.target;
+        const formatted = this.phoneUtil.applyMask(input.value);
+        this.userModel.phone = formatted;
+        input.value = formatted;
+    }
+
     login(form) {
         this.spinner.show();
 
@@ -57,11 +66,14 @@ export class UserLoginComponent implements OnInit, OnDestroy {
         // cleaning form value for car license plate no.
         form.value.reg_no = form.value.reg_no.replace('-', '').toUpperCase();
 
+        // normalizar telefone no formato padrão
+        const formattedPhone = this.phoneUtil.formatPhone(form.value.phone);
+
         if (status === 'valid'.toUpperCase()) {
             this.subscription =
                 this.auth.loginUser(
                     this.userModel.ticket_no,
-                    form.value.phone,
+                    formattedPhone,
                     form.value.reg_no
                 )
                 .subscribe((response: AuthResponse) => {
