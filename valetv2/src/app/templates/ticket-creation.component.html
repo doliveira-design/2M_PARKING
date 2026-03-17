@@ -8,7 +8,7 @@
         Preencha os dados do cliente para gerar o ticket
     </h1>
 
-    <form #userDetailForm="ngForm" class="form-container">
+    <form #userDetailForm="ngForm" class="form-container" autocomplete="off">
         <div class="form-item">
             <label for="first_name">
                 Nome
@@ -19,6 +19,7 @@
                 [(ngModel)]="ticket.firstName"
                 name="first_name"
                 #firstName="ngModel"
+                autocomplete="off"
                 pattern="^[A-Za-zÀ-ÿ]+(\s[A-Za-zÀ-ÿ]+)*$"
                 (focus)="onFocus('firstName')"
                 (blur)="onBlur('firstName')"
@@ -55,6 +56,7 @@
                 [(ngModel)]="ticket.lastName"
                 name="last_name"
                 #lastName="ngModel"
+                autocomplete="off"
                 pattern="^[A-Za-zÀ-ÿ]+(\s[A-Za-zÀ-ÿ]+)*$"
                 (focus)="onFocus('lastName')"
                 (blur)="onBlur('lastName')"
@@ -91,6 +93,7 @@
                 [(ngModel)]="ticket.phone"
                 name="phone_no"
                 #phone="ngModel"
+                autocomplete="off"
                 pattern="\+\d{2} \(\d{2}\) \d{4,5}-\d{4}"
                 (focus)="onFocus('phone')"
                 (blur)="onBlur('phone')"
@@ -127,6 +130,7 @@
                 [(ngModel)]="ticket.regNo"
                 name="reg_no"
                 #regNo="ngModel"
+                autocomplete="off"
                 pattern="^[A-Za-z]{3}-?[0-9][A-Za-z0-9][0-9]{2}$"
                 maxlength="8"
                 (focus)="onFocus('regNo')"
@@ -165,6 +169,7 @@
                 [(ngModel)]="ticket.manufacturer"
                 name="manufacturer"
                 #manufacturer="ngModel"
+                autocomplete="off"
                 pattern="^[A-Za-zÀ-ÿ]+(\s[A-Za-zÀ-ÿ]+)*$"
                 (focus)="onFocus('manufacturer')"
                 (blur)="onBlur('manufacturer')"
@@ -204,6 +209,7 @@
                 [(ngModel)]="ticket.model"
                 name="model"
                 #model="ngModel"
+                autocomplete="off"
                 pattern="^[A-Za-zÀ-ÿ0-9]+(\s[A-Za-zÀ-ÿ0-9]+)*$"
                 (focus)="onFocus('model')"
                 (blur)="onBlur('model')"
@@ -242,6 +248,7 @@
                 [(ngModel)]="ticket.color"
                 name="color"
                 #color="ngModel"
+                autocomplete="off"
                 (focus)="onFocus('color')"
                 (blur)="onBlur('color')"
                 [ngClass]="{
