@@ -308,6 +308,13 @@
 
         <div class="ticket-divider"></div>
 
+        <div class="ticket-qr">
+            <qrcode [qrdata]="generatedTicket.ticket_no" [size]="150" [level]="'M'"></qrcode>
+            <p class="qr-label">{{ generatedTicket.ticket_no }}</p>
+        </div>
+
+        <div class="ticket-divider"></div>
+
         <div class="ticket-footer">
             <p>Apresente este ticket ao retirar o veículo.</p>
             <p>O pagamento será verificado pela placa.</p>
