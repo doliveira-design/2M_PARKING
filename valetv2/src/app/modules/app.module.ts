@@ -25,6 +25,7 @@ import { DataService } from '../services/data.service';
 import { ErrorHandlerService } from '../services/error-handler.service';
 import { NotifierService } from '../services/notifier.service';
 import { PhoneUtilService } from '../services/phone-util.service';
+import { PlateUtilService } from '../services/plate-util.service';
 
 @NgModule({
   declarations: [
@@ -54,7 +55,8 @@ import { PhoneUtilService } from '../services/phone-util.service';
     DataService,
     ErrorHandlerService,
     NotifierService,
-    PhoneUtilService
+    PhoneUtilService,
+    PlateUtilService
   ],
   bootstrap: [AppComponent]
 })

@@ -40,6 +40,20 @@ function phonesMatch(phone1, phone2) {
 }
 
 // ============================================
+// Helper: Normalizar placa de veículo
+// ============================================
+function stripPlateChars(plate) {
+  return (plate || "").replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+}
+
+function isValidPlate(plate) {
+  const clean = stripPlateChars(plate);
+  if (clean.length !== 7) return false;
+  // Antiga: ABC1234 | Mercosul: ABC1D23
+  return /^[A-Z]{3}[0-9]{4}$/.test(clean) || /^[A-Z]{3}[0-9][A-Z][0-9]{2}$/.test(clean);
+}
+
+// ============================================
 // Helper: Verificar token JWT
 // ============================================
 function verifyToken(req) {
@@ -215,6 +229,11 @@ exports.createTicket = functions.https.onRequest(async (req, res) => {
     }
     const normalizedPhone = formatPhone(phone_no);
 
+    // Validar placa
+    if (!isValidPlate(reg_no)) {
+      return res.status(400).json({error: "Placa inválida. Use ABC-1234 (antiga) ou ABC1D23 (Mercosul)"});
+    }
+
     // Gerar número de ticket único
     const counterRef = db.collection("counters").doc("tickets");
     const counterDoc = await counterRef.get();
@@ -232,7 +251,7 @@ exports.createTicket = functions.https.onRequest(async (req, res) => {
       first_name,
       last_name,
       phone_no: normalizedPhone,
-      reg_no: reg_no.toUpperCase(),
+      reg_no: stripPlateChars(reg_no),
       manufacturer: manufacturer || "",
       model: model || "",
       color: color || "",
@@ -252,7 +271,7 @@ exports.createTicket = functions.https.onRequest(async (req, res) => {
         first_name,
         last_name,
         phone_no: normalizedPhone,
-        reg_no: reg_no.toUpperCase(),
+        reg_no: stripPlateChars(reg_no),
         manufacturer: manufacturer || "",
         model: model || "",
         color: color || "",
@@ -427,7 +446,7 @@ exports.plateCheck = functions.https.onRequest(async (req, res) => {
 
   try {
     verifyToken(req);
-    const regNo = (req.query.reg_no || "").toUpperCase().replace(/-/g, "");
+    const regNo = stripPlateChars(req.query.reg_no || "");
 
     if (!regNo) {
       return res.status(400).json({error: "Placa é obrigatória"});

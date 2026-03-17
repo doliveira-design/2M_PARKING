@@ -5,6 +5,7 @@ import { DataService } from '../services/data.service';
 import { TokenUtilService } from '../services/token-util.service';
 import { NotifierService } from '../services/notifier.service';
 import { PhoneUtilService } from '../services/phone-util.service';
+import { PlateUtilService } from '../services/plate-util.service';
 import { NgxSpinnerService } from 'ngx-spinner';
 
 @Component({
@@ -44,6 +45,7 @@ export class TicketCreationComponent implements OnInit, OnDestroy {
         private tokenUtil: TokenUtilService,
         private notifier: NotifierService,
         private phoneUtil: PhoneUtilService,
+        private plateUtil: PlateUtilService,
         private spinner: NgxSpinnerService
     ) { }
 
@@ -63,14 +65,25 @@ export class TicketCreationComponent implements OnInit, OnDestroy {
         input.value = formatted;
     }
 
+    onPlateInput(event) {
+        const input = event.target;
+        const formatted = this.plateUtil.applyMask(input.value);
+        this.ticket.regNo = formatted;
+        input.value = formatted;
+    }
+
+    formatPlateDisplay(plate: string): string {
+        return this.plateUtil.formatPlate(plate);
+    }
+
     generateTicket(form) {
         this.spinner.show();
 
         this.loginPressed = true;
         const status = form.status;
 
-        // replacing dashes from car license plate & converting to uppercase
-        form.value.reg_no = form.value.reg_no.replace('-', '').toUpperCase();
+        // normalizar placa: remover caracteres especiais e converter para uppercase
+        form.value.reg_no = this.plateUtil.stripPlate(form.value.reg_no);
 
         // normalizar telefone no formato padrão
         form.value.phone_no = this.phoneUtil.formatPhone(form.value.phone_no);

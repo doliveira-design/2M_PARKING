@@ -107,17 +107,21 @@
             </label>
             <input type="text"
                 required
-                placeholder="Digite a placa do veículo"
+                placeholder="ABC-1234 ou ABC1D23"
                 [(ngModel)]="ticket.regNo"
                 name="reg_no"
                 #regNo="ngModel"
+                pattern="^[A-Za-z]{3}-?[0-9][A-Za-z0-9][0-9]{2}$"
+                maxlength="8"
                 (focus)="onFocus('regNo')"
                 (blur)="onBlur('regNo')"
+                (input)="onPlateInput($event)"
                 [ngClass]="{
                     'input-invalid': regNo.invalid &&
                                     (regNo.touched || loginPressed),
                     'input-valid': regNo.valid && regNo.touched && !focus.regNo
                 }"
+                style="text-transform: uppercase;"
             >
             <!-- form validation -->
             <div class="error-container" *ngIf="regNo.invalid && (regNo.touched || regNo.dirty)">
@@ -126,6 +130,12 @@
                         <i class="fas fa-exclamation-triangle"></i>
                     </span>
                     Placa do veículo é obrigatória.
+                </div>
+                <div class="error" *ngIf="regNo.errors.pattern && !regNo.errors.required">
+                    <span>
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </span>
+                    Placa inválida. Use ABC-1234 (antiga) ou ABC1D23 (Mercosul).
                 </div>
             </div>
         </div>
@@ -245,7 +255,7 @@
             </div>
             <div class="ticket-row">
                 <span class="ticket-label">PLACA</span>
-                <span class="ticket-value ticket-plate">{{ generatedTicket.reg_no }}</span>
+                <span class="ticket-value ticket-plate">{{ formatPlateDisplay(generatedTicket.reg_no) }}</span>
             </div>
 
             <div class="ticket-divider-thin"></div>

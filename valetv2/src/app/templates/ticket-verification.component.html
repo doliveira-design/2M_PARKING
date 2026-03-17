@@ -16,8 +16,10 @@
             <label for="plate">Placa do Veículo</label>
             <input type="text"
                 [(ngModel)]="plateSearch"
-                placeholder="Ex: ABC1234"
+                placeholder="ABC-1234 ou ABC1D23"
                 (keyup.enter)="searchPlate()"
+                (input)="onPlateInput($event)"
+                maxlength="8"
                 class="plate-input"
             >
         </div>
@@ -39,7 +41,7 @@
             </div>
             <div class="result-row">
                 <span class="result-label">Placa</span>
-                <span class="result-value plate-value">{{ ticketResult.reg_no }}</span>
+                <span class="result-value plate-value">{{ formatPlateDisplay(ticketResult.reg_no) }}</span>
             </div>
             <div class="result-row">
                 <span class="result-label">Cliente</span>
