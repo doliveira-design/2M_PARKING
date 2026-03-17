@@ -133,7 +133,20 @@ export class DataService {
         };
 
         return from(this.db.collection('tickets').add(ticketData)).pipe(
-          map(() => ({ message: 'Ticket created', ticket_no: ticketNo }))
+          map(() => ({
+            message: 'Ticket created',
+            ticket_no: ticketNo,
+            ticket_data: {
+              ticket_no: ticketNo,
+              first_name: values.first_name,
+              last_name: values.last_name,
+              reg_no: (values.reg_no || '').toUpperCase(),
+              manufacturer: values.manufacturer || '',
+              model: values.model || '',
+              color: values.color || '',
+              amount: 25.00
+            }
+          }))
         );
       })
     );
