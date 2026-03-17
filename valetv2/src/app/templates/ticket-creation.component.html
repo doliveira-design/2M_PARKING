@@ -1,4 +1,9 @@
-<div>
+<div class="valet-nav no-print">
+    <a routerLink="/valet/ticket" class="nav-link active">Gerar Ticket</a>
+    <a routerLink="/valet/verificar" class="nav-link">Verificar Saída</a>
+</div>
+
+<div *ngIf="!generatedTicket">
     <h1>
         Preencha os dados do cliente para gerar o ticket
     </h1>
@@ -221,4 +226,58 @@
             Gerar Ticket
         </button>
     </form>
+</div>
+
+<!-- Ticket imprimível -->
+<div *ngIf="generatedTicket" class="print-area">
+    <div class="ticket-print">
+        <div class="ticket-header">
+            <h2>2M PARKING</h2>
+            <p class="ticket-subtitle">Ticket de Estacionamento</p>
+        </div>
+
+        <div class="ticket-divider"></div>
+
+        <div class="ticket-info">
+            <div class="ticket-row">
+                <span class="ticket-label">Nº TICKET</span>
+                <span class="ticket-value ticket-number">{{ generatedTicket.ticket_no }}</span>
+            </div>
+            <div class="ticket-row">
+                <span class="ticket-label">PLACA</span>
+                <span class="ticket-value ticket-plate">{{ generatedTicket.reg_no }}</span>
+            </div>
+
+            <div class="ticket-divider-thin"></div>
+
+            <div class="ticket-row">
+                <span class="ticket-label">CLIENTE</span>
+                <span class="ticket-value">{{ generatedTicket.first_name }} {{ generatedTicket.last_name }}</span>
+            </div>
+            <div class="ticket-row">
+                <span class="ticket-label">VEÍCULO</span>
+                <span class="ticket-value">{{ generatedTicket.color }} {{ generatedTicket.manufacturer }} {{ generatedTicket.model }}</span>
+            </div>
+            <div class="ticket-row">
+                <span class="ticket-label">VALOR</span>
+                <span class="ticket-value">R$ {{ generatedTicket.amount | number:'1.2-2' }}</span>
+            </div>
+        </div>
+
+        <div class="ticket-divider"></div>
+
+        <div class="ticket-footer">
+            <p>Apresente este ticket ao retirar o veículo.</p>
+            <p>O pagamento será verificado pela placa.</p>
+        </div>
+    </div>
+
+    <div class="print-actions no-print">
+        <button class="form-btn btn-blue" (click)="printTicket()">
+            <i class="fas fa-print"></i> Imprimir Ticket
+        </button>
+        <button class="form-btn btn-new" (click)="newTicket()">
+            Novo Ticket
+        </button>
+    </div>
 </div>

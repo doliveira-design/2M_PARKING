@@ -1,13 +1,133 @@
 .container {
-    display: grid;
-    justify-content: center;
-    align-content: space-between;
-    // body padding + margin = 36px
-    height: calc(100vh - 36px);
-}
-.qr-code {
-    margin: 10px 0px;
-    padding: 10px 0px;
-    justify-self: center;
+    padding: 10px;
+    max-width: 500px;
+    margin: 0 auto;
 }
 
+.subtitle {
+    color: #999;
+    margin-top: 0;
+}
+
+.search-area {
+    margin-bottom: 20px;
+}
+
+.plate-input {
+    font-size: 20px !important;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-weight: bold !important;
+    text-align: center;
+}
+
+.result-card {
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+    position: relative;
+
+    &.paid {
+        border: 2px solid #77d89c;
+        background: #f0fff5;
+    }
+
+    &.unpaid {
+        border: 2px solid #e7163a;
+        background: #fff5f5;
+    }
+}
+
+.status-badge {
+    text-align: center;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-weight: 900;
+    font-size: 18px;
+    letter-spacing: 3px;
+    margin-bottom: 15px;
+
+    &.badge-paid {
+        background: #77d89c;
+        color: #fff;
+    }
+
+    &.badge-unpaid {
+        background: #e7163a;
+        color: #fff;
+    }
+}
+
+.result-info {
+    padding: 10px 0;
+}
+
+.result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+
+    &:last-child {
+        border-bottom: none;
+    }
+}
+
+.result-label {
+    font-size: 12px;
+    font-weight: bold;
+    color: #999;
+    text-transform: uppercase;
+}
+
+.result-value {
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+}
+
+.plate-value {
+    font-size: 18px;
+    letter-spacing: 2px;
+}
+
+.result-action {
+    margin-top: 10px;
+}
+
+.warning-text {
+    color: #e7163a;
+    font-weight: bold;
+    text-align: center;
+}
+
+.success-text {
+    color: #2c8c51;
+    font-weight: bold;
+    text-align: center;
+}
+
+.not-found {
+    text-align: center;
+    margin-top: 30px;
+    color: #e7163a;
+
+    p {
+        font-size: 16px;
+        font-weight: bold;
+    }
+}
+
+.btn-new {
+    background: #77d89c;
+    color: #fff;
+    border: 1px solid #77d89c;
+    letter-spacing: 2px;
+
+    &:hover, &:focus, &:active {
+        background: #5cc282;
+        border: 1px solid #5cc282;
+        transition: 0.5s all;
+    }
+}

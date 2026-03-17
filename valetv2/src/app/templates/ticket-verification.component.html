@@ -1,26 +1,87 @@
+<div class="valet-nav">
+    <a routerLink="/valet/ticket" class="nav-link">Gerar Ticket</a>
+    <a routerLink="/valet/verificar" class="nav-link active">Verificar Saída</a>
+</div>
+
 <div class="container">
-    <div>
-        <h1 class="no-margin-bottom">
-            Obrigado por utilizar o 2M Parking.
-        </h1>
-        <p class="no-margin-top">
-            Mostre este QR Code ao manobrista para retirar seu veículo
-        </p>
+    <h1>
+        Verificação de Saída
+    </h1>
+    <p class="subtitle">
+        Digite a placa do veículo para verificar o pagamento
+    </p>
+
+    <div class="search-area">
+        <div class="form-item">
+            <label for="plate">Placa do Veículo</label>
+            <input type="text"
+                [(ngModel)]="plateSearch"
+                placeholder="Ex: ABC1234"
+                (keyup.enter)="searchPlate()"
+                class="plate-input"
+            >
+        </div>
+        <button class="form-btn btn-blue" (click)="searchPlate()">
+            Buscar
+        </button>
     </div>
 
-    <div class="qr-code">
-        <qrcode [qrdata]="qrcode"
-                [size]="256"
-                [level]="'M'">
-        </qrcode>
+    <!-- Resultado: Ticket encontrado -->
+    <div *ngIf="ticketResult" class="result-card" [ngClass]="{'paid': ticketResult.paid, 'unpaid': !ticketResult.paid}">
+        <div class="status-badge" [ngClass]="{'badge-paid': ticketResult.paid, 'badge-unpaid': !ticketResult.paid}">
+            {{ ticketResult.paid ? 'PAGO' : 'PENDENTE' }}
+        </div>
+
+        <div class="result-info">
+            <div class="result-row">
+                <span class="result-label">Ticket</span>
+                <span class="result-value">{{ ticketResult.ticket_no }}</span>
+            </div>
+            <div class="result-row">
+                <span class="result-label">Placa</span>
+                <span class="result-value plate-value">{{ ticketResult.reg_no }}</span>
+            </div>
+            <div class="result-row">
+                <span class="result-label">Cliente</span>
+                <span class="result-value">{{ ticketResult.first_name }} {{ ticketResult.last_name }}</span>
+            </div>
+            <div class="result-row">
+                <span class="result-label">Veículo</span>
+                <span class="result-value">{{ ticketResult.color }} {{ ticketResult.manufacturer }} {{ ticketResult.model }}</span>
+            </div>
+            <div class="result-row">
+                <span class="result-label">Valor</span>
+                <span class="result-value">R$ {{ ticketResult.amount | number:'1.2-2' }}</span>
+            </div>
+        </div>
+
+        <div class="result-action" *ngIf="!ticketResult.paid">
+            <p class="warning-text">
+                <i class="fas fa-exclamation-triangle"></i>
+                Pagamento pendente! O cliente deve efetuar o pagamento antes de retirar o veículo.
+            </p>
+        </div>
+
+        <div class="result-action" *ngIf="ticketResult.paid">
+            <p class="success-text">
+                <i class="fas fa-check-circle"></i>
+                Pagamento confirmado. O veículo pode ser liberado.
+            </p>
+        </div>
+
+        <button class="form-btn btn-new" (click)="clearSearch()">
+            Nova Consulta
+        </button>
     </div>
 
-    <div>
+    <!-- Não encontrado -->
+    <div *ngIf="notFound" class="not-found">
         <p>
-            Pressione concluído quando retirar seu veículo.
+            <i class="fas fa-times-circle"></i>
+            Nenhum ticket ativo encontrado para essa placa.
         </p>
-        <button class="form-btn btn-blue">
-            Concluído
+        <button class="form-btn btn-new" (click)="clearSearch()">
+            Tentar Novamente
         </button>
     </div>
 </div>

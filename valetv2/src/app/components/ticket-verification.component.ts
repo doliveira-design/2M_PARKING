@@ -1,10 +1,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 import { DataService } from '../services/data.service';
 import { TokenUtilService } from '../services/token-util.service';
-
-import { switchMap } from 'rxjs/operators';
+import { NotifierService } from '../services/notifier.service';
+import { NgxSpinnerService } from 'ngx-spinner';
 
 @Component({
     selector: 'app-qr',
@@ -14,37 +14,53 @@ import { switchMap } from 'rxjs/operators';
 
 export class TicketVerificationComponent implements OnInit, OnDestroy {
 
-    qrcode: String = null;
+    plateSearch = '';
+    ticketResult: any = null;
+    notFound = false;
+    sub: Subscription;
 
     constructor(private data: DataService,
         private tokenUtil: TokenUtilService,
-        private route: ActivatedRoute) {
+        private notifier: NotifierService,
+        private spinner: NgxSpinnerService) {
     }
 
-    ngOnDestroy(): void { }
+    ngOnDestroy(): void {
+        if (this.sub) {
+            this.sub.unsubscribe();
+        }
+    }
+
     ngOnInit(): void {
-        this.tokenUtil.isTokenValid()
-            .subscribe(() => {
-                this.getQrCode();
-            });
+        this.sub = this.tokenUtil.isTokenValid(true, 'token_v').subscribe();
     }
 
-    getQrCode() {
-        let ticket_no = null;
-        this.route.params
-            .pipe(
-                switchMap(param => {
-                    ticket_no = param.ticket_no;
-                    return this.data.getQrCode(ticket_no, this.tokenUtil.getToken());
-                })
-            )
-            .subscribe((response: any) => {
-                this.qrcode =
-                   `Nº Ticket: ${response.ticket_no}  \n
-                    Placa: ${response.reg_no}  \n
-                    Valor: ${response.amount}  \n
-                    Status: ${response.status}  `;
-            });
+    searchPlate() {
+        if (!this.plateSearch || this.plateSearch.trim().length === 0) {
+            this.notifier.addMessage('error', 'Erro', 'Digite a placa do veículo.');
+            return;
+        }
+
+        this.spinner.show();
+        this.notFound = false;
+        this.ticketResult = null;
+
+        this.data.searchByPlate(this.plateSearch)
+            .subscribe(
+                (result) => {
+                    this.spinner.hide();
+                    this.ticketResult = result;
+                },
+                (err) => {
+                    this.spinner.hide();
+                    this.notFound = true;
+                }
+            );
     }
 
+    clearSearch() {
+        this.plateSearch = '';
+        this.ticketResult = null;
+        this.notFound = false;
+    }
 }

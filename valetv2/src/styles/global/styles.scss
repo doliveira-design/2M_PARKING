@@ -155,3 +155,34 @@ p {
 .no-margin-bottom {
     margin-bottom: 0px;
 }
+
+.valet-nav {
+    display: flex;
+    background: #252525;
+    padding: 0;
+    margin: -10px -10px 10px -10px;
+
+    .nav-link {
+        flex: 1;
+        text-align: center;
+        padding: 14px 10px;
+        color: #aaa;
+        text-decoration: none;
+        text-transform: uppercase;
+        font-family: 'Roboto', sans-serif;
+        font-weight: 700;
+        font-size: 14px;
+        letter-spacing: 1px;
+        transition: 0.3s all;
+
+        &:hover {
+            color: #fff;
+            background: #333;
+        }
+
+        &.active {
+            color: #fff;
+            background: #2c5cd5;
+        }
+    }
+}

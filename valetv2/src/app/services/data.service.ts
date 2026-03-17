@@ -138,4 +138,38 @@ export class DataService {
       })
     );
   }
+
+  searchByPlate(regNo: string) {
+    const plate = (regNo || '').toUpperCase().replace(/-/g, '');
+    return from(
+      this.db.collection('tickets').ref
+        .where('reg_no', '==', plate)
+        .where('status', 'in', ['active', 'paid'])
+        .orderBy('created_at', 'desc')
+        .limit(1)
+        .get() as Promise<any>
+    ).pipe(
+      map(snapshot => {
+        if (snapshot.empty) {
+          const err = { status: 404 };
+          this.errHandler.handleError(err);
+          throw err;
+        }
+
+        const ticket = snapshot.docs[0].data();
+        return {
+          ticket_no: ticket.ticket_no,
+          first_name: ticket.first_name,
+          last_name: ticket.last_name,
+          reg_no: ticket.reg_no,
+          manufacturer: ticket.manufacturer,
+          model: ticket.model,
+          color: ticket.color,
+          amount: ticket.amount,
+          paid: ticket.paid,
+          status: ticket.status
+        };
+      })
+    );
+  }
 }

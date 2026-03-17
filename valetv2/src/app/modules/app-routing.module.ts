@@ -13,6 +13,7 @@ const routes: Routes = [
   { path: '', redirectTo: 'valet/login', pathMatch: 'full' },
   { path: 'valet/login', component: ValetLoginComponent },
   { path: 'valet/ticket', component: TicketCreationComponent },
+  { path: 'valet/verificar', component: TicketVerificationComponent },
   { path: 'user/:ticket_no/login', component: UserLoginComponent },
   { path: 'user/:ticket_no', component: TicketViewComponent },
   { path: 'validate/:ticket_no', component: TicketVerificationComponent },

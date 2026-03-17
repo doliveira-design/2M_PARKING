@@ -38,6 +38,7 @@ export class TicketCreationComponent implements OnInit, OnDestroy {
     };
 
     loginPressed = false;
+    generatedTicket: any = null;
 
     constructor(private data: DataService,
         private tokenUtil: TokenUtilService,
@@ -76,12 +77,22 @@ export class TicketCreationComponent implements OnInit, OnDestroy {
 
         if (status === 'valid'.toUpperCase()) {
             this.data.createTicket(form.value, this.tokenUtil.getToken('token_v'))
-                .subscribe((result) => {
+                .subscribe((result: any) => {
                     this.spinner.hide();
+                    this.generatedTicket = result.ticket_data || {
+                        ticket_no: result.ticket_no,
+                        first_name: form.value.first_name,
+                        last_name: form.value.last_name,
+                        reg_no: form.value.reg_no,
+                        manufacturer: form.value.manufacturer,
+                        model: form.value.model,
+                        color: form.value.color,
+                        amount: 25.00
+                    };
                     this.notifier.addMessage(
                         'success',
                         'Ticket Gerado',
-                        'Novo ticket eletrônico gerado com sucesso!'
+                        `Ticket ${result.ticket_no} gerado com sucesso!`
                     );
                     form.reset();
                     this.loginPressed = false;
@@ -95,6 +106,14 @@ export class TicketCreationComponent implements OnInit, OnDestroy {
 
     onBlur(inputName) {
         this.focus[inputName] = false;
+    }
+
+    printTicket() {
+        window.print();
+    }
+
+    newTicket() {
+        this.generatedTicket = null;
     }
 
 }

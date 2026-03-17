@@ -1,0 +1,136 @@
+.print-area {
+    padding: 10px;
+}
+
+.ticket-print {
+    max-width: 350px;
+    margin: 0 auto;
+    border: 2px dashed #333;
+    padding: 20px;
+    background: #fff;
+    font-family: 'Courier New', monospace;
+}
+
+.ticket-header {
+    text-align: center;
+
+    h2 {
+        margin: 0;
+        padding: 0;
+        font-size: 24px;
+        font-weight: 900;
+        letter-spacing: 3px;
+    }
+
+    .ticket-subtitle {
+        margin: 5px 0 0 0;
+        padding: 0;
+        font-size: 12px;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+}
+
+.ticket-divider {
+    border-top: 2px dashed #333;
+    margin: 15px 0;
+}
+
+.ticket-divider-thin {
+    border-top: 1px solid #ccc;
+    margin: 10px 0;
+}
+
+.ticket-info {
+    padding: 5px 0;
+}
+
+.ticket-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+}
+
+.ticket-label {
+    font-size: 11px;
+    font-weight: bold;
+    color: #666;
+    text-transform: uppercase;
+}
+
+.ticket-value {
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+    text-align: right;
+}
+
+.ticket-number {
+    font-size: 18px;
+    color: #000;
+}
+
+.ticket-plate {
+    font-size: 20px;
+    color: #000;
+    letter-spacing: 2px;
+}
+
+.ticket-footer {
+    text-align: center;
+
+    p {
+        margin: 3px 0;
+        padding: 0;
+        font-size: 10px;
+        color: #666;
+    }
+}
+
+.print-actions {
+    max-width: 350px;
+    margin: 20px auto;
+}
+
+.btn-new {
+    background: #77d89c;
+    color: #fff;
+    border: 1px solid #77d89c;
+    letter-spacing: 2px;
+    word-spacing: 5px;
+
+    &:hover, &:focus, &:active {
+        background: #5cc282;
+        border: 1px solid #5cc282;
+        transition: 0.5s all;
+    }
+}
+
+@media print {
+    .no-print {
+        display: none !important;
+    }
+
+    body * {
+        visibility: hidden;
+    }
+
+    .print-area,
+    .print-area * {
+        visibility: visible;
+    }
+
+    .print-area {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+
+    .ticket-print {
+        border: 2px dashed #000;
+        max-width: 80mm;
+    }
+}

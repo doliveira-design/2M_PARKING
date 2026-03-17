@@ -247,6 +247,17 @@ exports.createTicket = functions.https.onRequest(async (req, res) => {
     return res.status(201).json({
       message: "Ticket created successfully",
       ticket_no: ticketNo,
+      ticket_data: {
+        ticket_no: ticketNo,
+        first_name,
+        last_name,
+        phone_no: normalizedPhone,
+        reg_no: reg_no.toUpperCase(),
+        manufacturer: manufacturer || "",
+        model: model || "",
+        color: color || "",
+        amount: 25.00,
+      },
     });
   } catch (error) {
     if (error.message === "No token provided") {
@@ -401,6 +412,59 @@ exports.setupValet = functions.https.onRequest(async (req, res) => {
     return res.status(201).json({message: `Valet '${uname}' created successfully`});
   } catch (error) {
     console.error("setupValet error:", error);
+    return res.status(500).json({error: "Internal server error"});
+  }
+});
+
+// ============================================
+// GET /plate?reg_no={placa} - Buscar ticket por placa
+// ============================================
+exports.plateCheck = functions.https.onRequest(async (req, res) => {
+  if (setCors(req, res)) return;
+  if (req.method !== "GET") {
+    return res.status(405).json({error: "Method not allowed"});
+  }
+
+  try {
+    verifyToken(req);
+    const regNo = (req.query.reg_no || "").toUpperCase().replace(/-/g, "");
+
+    if (!regNo) {
+      return res.status(400).json({error: "Placa é obrigatória"});
+    }
+
+    const snapshot = await db.collection("tickets")
+        .where("reg_no", "==", regNo)
+        .where("status", "in", ["active", "paid"])
+        .orderBy("created_at", "desc")
+        .limit(1)
+        .get();
+
+    if (snapshot.empty) {
+      return res.status(404).json({error: "Nenhum ticket ativo encontrado para essa placa"});
+    }
+
+    const ticketDoc = snapshot.docs[0];
+    const ticket = ticketDoc.data();
+
+    return res.status(200).json({
+      ticket_no: ticket.ticket_no,
+      first_name: ticket.first_name,
+      last_name: ticket.last_name,
+      reg_no: ticket.reg_no,
+      manufacturer: ticket.manufacturer,
+      model: ticket.model,
+      color: ticket.color,
+      amount: ticket.amount,
+      paid: ticket.paid,
+      status: ticket.status,
+      created_at: ticket.created_at,
+    });
+  } catch (error) {
+    if (error.message === "No token provided") {
+      return res.status(401).json({error: "Unauthorized"});
+    }
+    console.error("plateCheck error:", error);
     return res.status(500).json({error: "Internal server error"});
   }
 });
