@@ -114,11 +114,6 @@ export class TicketCreationComponent implements OnInit, OnDestroy {
                         color: form.value.color,
                         amount: 25.00
                     };
-                    this.notifier.addMessage(
-                        'success',
-                        'Ticket Gerado',
-                        `Ticket ${result.ticket_no} gerado com sucesso!`
-                    );
                     form.reset();
                     this.loginPressed = false;
                 });
