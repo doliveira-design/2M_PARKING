@@ -1,6 +1,6 @@
 # ============================================
 # 2M Parking — Docker Compose (Desenvolvimento)
-# Uso: docker-compose up --build
+# Uso: cp .env.docker.example .env.docker && docker-compose --env-file .env.docker up --build
 # ============================================
 version: "3.8"
 
@@ -11,14 +11,14 @@ services:
     container_name: 2mparking-db
     environment:
       ACCEPT_EULA: "Y"
-      MSSQL_SA_PASSWORD: "MParking@2026!"
+      MSSQL_SA_PASSWORD: "${SA_PASSWORD}"
       MSSQL_PID: "Express"
     ports:
       - "1433:1433"
     volumes:
       - mssql-data:/var/opt/mssql
     healthcheck:
-      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "MParking@2026!" -C -Q "SELECT 1" -b
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "${SA_PASSWORD}" -C -Q "SELECT 1" -b
       interval: 10s
       timeout: 5s
       retries: 5
@@ -39,12 +39,12 @@ services:
       DB_PORT: 1433
       DB_NAME: MParking
       DB_USER: sa
-      DB_PASSWORD: "MParking@2026!"
+      DB_PASSWORD: "${SA_PASSWORD}"
       DB_ENCRYPT: "false"
-      JWT_SECRET: "2m-parking-docker-dev-secret-2026"
-      SETUP_KEY: "2m-parking-docker-dev-setup-2026"
-      CORS_ORIGINS: "http://localhost,http://localhost:80"
-      LOG_LEVEL: INFO
+      JWT_SECRET: "${JWT_SECRET}"
+      SETUP_KEY: "${SETUP_KEY}"
+      CORS_ORIGINS: "${CORS_ORIGINS:-http://localhost,http://localhost:80}"
+      LOG_LEVEL: "${LOG_LEVEL:-INFO}"
     depends_on:
       db:
         condition: service_healthy

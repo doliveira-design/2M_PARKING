@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 import { AdminService } from '../services/admin.service';
 import { TokenUtilService } from '../services/token-util.service';
@@ -11,7 +12,7 @@ import { NgxSpinnerService } from 'ngx-spinner';
     templateUrl: '../templates/admin-totems.component.html',
     styleUrls: ['../../styles/components/admin-totems.component.scss']
 })
-export class AdminTotemsComponent implements OnInit {
+export class AdminTotemsComponent implements OnInit, OnDestroy {
 
     devices: any[] = [];
     transactions: any[] = [];
@@ -25,6 +26,7 @@ export class AdminTotemsComponent implements OnInit {
     filterAction: string = '';
 
     activeTab: 'devices' | 'transactions' = 'devices';
+    private subs: Subscription[] = [];
 
     constructor(
         private admin: AdminService,
@@ -50,10 +52,10 @@ export class AdminTotemsComponent implements OnInit {
 
     loadDevices() {
         this.spinner.show();
-        this.admin.getTotemDevices().subscribe(
+        this.subs.push(this.admin.getTotemDevices().subscribe(
             (data) => { this.devices = data; this.spinner.hide(); },
             () => { this.spinner.hide(); }
-        );
+        ));
     }
 
     loadTransactions() {
@@ -61,10 +63,10 @@ export class AdminTotemsComponent implements OnInit {
         const params: any = {};
         if (this.filterDeviceId) { params.device_id = parseInt(this.filterDeviceId, 10); }
         if (this.filterAction) { params.action = this.filterAction; }
-        this.admin.getTotemTransactions(params).subscribe(
+        this.subs.push(this.admin.getTotemTransactions(params).subscribe(
             (data) => { this.transactions = data; this.spinner.hide(); },
             () => { this.spinner.hide(); }
-        );
+        ));
     }
 
     toggleForm() {
@@ -79,7 +81,7 @@ export class AdminTotemsComponent implements OnInit {
             return;
         }
         this.spinner.show();
-        this.admin.createTotemDevice(this.newDevice.device_name).subscribe(
+        this.subs.push(this.admin.createTotemDevice(this.newDevice.device_name).subscribe(
             (res) => {
                 if (res && res.api_key) {
                     this.createdKey = res.api_key;
@@ -90,18 +92,18 @@ export class AdminTotemsComponent implements OnInit {
                 this.loadDevices();
             },
             () => { this.spinner.hide(); }
-        );
+        ));
     }
 
     toggleActive(device: any) {
         this.spinner.show();
-        this.admin.updateTotemDevice(device.id, { is_active: !device.is_active }).subscribe(
+        this.subs.push(this.admin.updateTotemDevice(device.id, { is_active: !device.is_active }).subscribe(
             () => {
                 this.notifier.addMessage('success', 'Sucesso', `Totem ${!device.is_active ? 'ativado' : 'desativado'}.`);
                 this.loadDevices();
             },
             () => { this.spinner.hide(); }
-        );
+        ));
     }
 
     confirmDelete(id: number) { this.confirmDeleteId = id; }
@@ -110,13 +112,13 @@ export class AdminTotemsComponent implements OnInit {
     deleteDevice(id: number) {
         this.spinner.show();
         this.confirmDeleteId = null;
-        this.admin.deleteTotemDevice(id).subscribe(
+        this.subs.push(this.admin.deleteTotemDevice(id).subscribe(
             () => {
                 this.notifier.addMessage('success', 'Sucesso', 'Totem removido.');
                 this.loadDevices();
             },
             () => { this.spinner.hide(); }
-        );
+        ));
     }
 
     getStatusClass(device: any): string {
@@ -134,7 +136,10 @@ export class AdminTotemsComponent implements OnInit {
     }
 
     logout() {
-        localStorage.removeItem('token_v');
-        this.router.navigateByUrl('/valet/login');
+        this.tokenUtil.logout();
+    }
+
+    ngOnDestroy(): void {
+        this.subs.forEach(s => s.unsubscribe());
     }
 }

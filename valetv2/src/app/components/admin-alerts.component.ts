@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 import { AdminService } from '../services/admin.service';
 import { TokenUtilService } from '../services/token-util.service';
@@ -11,10 +12,11 @@ import { NgxSpinnerService } from 'ngx-spinner';
     templateUrl: '../templates/admin-alerts.component.html',
     styleUrls: ['../../styles/components/admin-alerts.component.scss']
 })
-export class AdminAlertsComponent implements OnInit {
+export class AdminAlertsComponent implements OnInit, OnDestroy {
 
     config: any = null;
     editing = false;
+    private subs: Subscription[] = [];
 
     editData = {
         alerts_enabled: false,
@@ -50,14 +52,14 @@ export class AdminAlertsComponent implements OnInit {
 
     loadConfig() {
         this.spinner.show();
-        this.admin.getAlertsConfig().subscribe(
+        this.subs.push(this.admin.getAlertsConfig().subscribe(
             (data) => {
                 this.config = data;
                 this.syncEditData();
                 this.spinner.hide();
             },
             () => { this.spinner.hide(); }
-        );
+        ));
     }
 
     syncEditData() {
@@ -105,7 +107,7 @@ export class AdminAlertsComponent implements OnInit {
         }
 
         this.spinner.show();
-        this.admin.updateAlertsConfig({
+        this.subs.push(this.admin.updateAlertsConfig({
             alerts_enabled: this.editData.alerts_enabled,
             alerts_webhook_url: this.editData.alerts_webhook_url,
             alerts_events: this.editData.alerts_events
@@ -116,11 +118,14 @@ export class AdminAlertsComponent implements OnInit {
                 this.loadConfig();
             },
             () => { this.spinner.hide(); }
-        );
+        ));
     }
 
     logout() {
-        localStorage.removeItem('token_v');
-        this.router.navigateByUrl('/valet/login');
+        this.tokenUtil.logout();
+    }
+
+    ngOnDestroy(): void {
+        this.subs.forEach(s => s.unsubscribe());
     }
 }

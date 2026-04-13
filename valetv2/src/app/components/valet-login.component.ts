@@ -54,7 +54,7 @@ export class ValetLoginComponent implements OnInit, OnDestroy {
                         this.spinner.hide();
 
                         // Decode JWT to check role
-                        const payload = JSON.parse(atob(response.token.split('.')[1]));
+                        const payload = this.tokenUtil.decodeTokenString(response.token);
 
                         if (payload.role === 'admin') {
                             this.notifier.addMessage(

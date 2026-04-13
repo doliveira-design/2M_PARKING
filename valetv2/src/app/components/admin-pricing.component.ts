@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 import { AdminService } from '../services/admin.service';
 import { TokenUtilService } from '../services/token-util.service';
@@ -11,11 +12,12 @@ import { NgxSpinnerService } from 'ngx-spinner';
     templateUrl: '../templates/admin-pricing.component.html',
     styleUrls: ['../../styles/components/admin-pricing.component.scss']
 })
-export class AdminPricingComponent implements OnInit {
+export class AdminPricingComponent implements OnInit, OnDestroy {
 
     pricing: any = null;
     editing = false;
     editData = { price_per_hour: 0, max_daily: 0, tolerance_minutes: 0 };
+    private subs: Subscription[] = [];
 
     constructor(
         private admin: AdminService,
@@ -35,7 +37,7 @@ export class AdminPricingComponent implements OnInit {
 
     loadPricing() {
         this.spinner.show();
-        this.admin.getPricing().subscribe(
+        this.subs.push(this.admin.getPricing().subscribe(
             (data) => {
                 this.pricing = data && data.length > 0 ? data[0] : null;
                 if (this.pricing) {
@@ -48,7 +50,7 @@ export class AdminPricingComponent implements OnInit {
                 this.spinner.hide();
             },
             () => { this.spinner.hide(); }
-        );
+        ));
     }
 
     toggleEdit() {
@@ -69,18 +71,21 @@ export class AdminPricingComponent implements OnInit {
         }
 
         this.spinner.show();
-        this.admin.updatePricing(this.pricing.id, this.editData).subscribe(
+        this.subs.push(this.admin.updatePricing(this.pricing.id, this.editData).subscribe(
             () => {
                 this.notifier.addMessage('success', 'Sucesso', 'Tarifação atualizada.');
                 this.editing = false;
                 this.loadPricing();
             },
             () => { this.spinner.hide(); }
-        );
+        ));
     }
 
     logout() {
-        localStorage.removeItem('token_v');
-        this.router.navigateByUrl('/valet/login');
+        this.tokenUtil.logout();
+    }
+
+    ngOnDestroy(): void {
+        this.subs.forEach(s => s.unsubscribe());
     }
 }

@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 import { AdminService } from '../services/admin.service';
 import { TokenUtilService } from '../services/token-util.service';
@@ -11,7 +12,7 @@ import { NgxSpinnerService } from 'ngx-spinner';
     templateUrl: '../templates/admin-barriers.component.html',
     styleUrls: ['../../styles/components/admin-barriers.component.scss']
 })
-export class AdminBarriersComponent implements OnInit {
+export class AdminBarriersComponent implements OnInit, OnDestroy {
 
     devices: any[] = [];
     events: any[] = [];
@@ -22,6 +23,7 @@ export class AdminBarriersComponent implements OnInit {
     filterBarrierId: string = '';
 
     activeTab: 'devices' | 'events' = 'devices';
+    private subs: Subscription[] = [];
 
     constructor(
         private admin: AdminService,
@@ -47,20 +49,20 @@ export class AdminBarriersComponent implements OnInit {
 
     loadDevices() {
         this.spinner.show();
-        this.admin.getBarrierDevices().subscribe(
+        this.subs.push(this.admin.getBarrierDevices().subscribe(
             (data) => { this.devices = data; this.spinner.hide(); },
             () => { this.spinner.hide(); }
-        );
+        ));
     }
 
     loadEvents() {
         this.spinner.show();
         const params: any = {};
         if (this.filterBarrierId) { params.barrier_id = parseInt(this.filterBarrierId, 10); }
-        this.admin.getBarrierEvents(params).subscribe(
+        this.subs.push(this.admin.getBarrierEvents(params).subscribe(
             (data) => { this.events = data; this.spinner.hide(); },
             () => { this.spinner.hide(); }
-        );
+        ));
     }
 
     toggleForm() {
@@ -74,7 +76,7 @@ export class AdminBarriersComponent implements OnInit {
             return;
         }
         this.spinner.show();
-        this.admin.createBarrierDevice(this.newDevice).subscribe(
+        this.subs.push(this.admin.createBarrierDevice(this.newDevice).subscribe(
             () => {
                 this.notifier.addMessage('success', 'Sucesso', `Cancela '${this.newDevice.name}' registrada.`);
                 this.newDevice = { name: '', type: 'entry', control_url: '' };
@@ -82,42 +84,42 @@ export class AdminBarriersComponent implements OnInit {
                 this.loadDevices();
             },
             () => { this.spinner.hide(); }
-        );
+        ));
     }
 
     toggleActive(device: any) {
         this.spinner.show();
-        this.admin.updateBarrierDevice(device.id, { is_active: !device.is_active }).subscribe(
+        this.subs.push(this.admin.updateBarrierDevice(device.id, { is_active: !device.is_active }).subscribe(
             () => {
                 this.notifier.addMessage('success', 'Sucesso', `Cancela ${!device.is_active ? 'ativada' : 'desativada'}.`);
                 this.loadDevices();
             },
             () => { this.spinner.hide(); }
-        );
+        ));
     }
 
     openBarrier(device: any) {
         this.spinner.show();
-        this.admin.openBarrier(device.id).subscribe(
+        this.subs.push(this.admin.openBarrier(device.id).subscribe(
             (res) => {
                 const msg = res && res.simulated ? 'Cancela aberta (simulado).' : 'Cancela aberta.';
                 this.notifier.addMessage('success', 'Sucesso', msg);
                 this.loadDevices();
             },
             () => { this.spinner.hide(); }
-        );
+        ));
     }
 
     closeBarrier(device: any) {
         this.spinner.show();
-        this.admin.closeBarrier(device.id).subscribe(
+        this.subs.push(this.admin.closeBarrier(device.id).subscribe(
             (res) => {
                 const msg = res && res.simulated ? 'Cancela fechada (simulado).' : 'Cancela fechada.';
                 this.notifier.addMessage('success', 'Sucesso', msg);
                 this.loadDevices();
             },
             () => { this.spinner.hide(); }
-        );
+        ));
     }
 
     getStatusClass(device: any): string {
@@ -162,7 +164,10 @@ export class AdminBarriersComponent implements OnInit {
     }
 
     logout() {
-        localStorage.removeItem('token_v');
-        this.router.navigateByUrl('/valet/login');
+        this.tokenUtil.logout();
+    }
+
+    ngOnDestroy(): void {
+        this.subs.forEach(s => s.unsubscribe());
     }
 }

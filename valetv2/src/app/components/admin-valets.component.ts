@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 import { AdminService } from '../services/admin.service';
 import { TokenUtilService } from '../services/token-util.service';
@@ -11,12 +12,13 @@ import { NgxSpinnerService } from 'ngx-spinner';
     templateUrl: '../templates/admin-valets.component.html',
     styleUrls: ['../../styles/components/admin-valets.component.scss']
 })
-export class AdminValetsComponent implements OnInit {
+export class AdminValetsComponent implements OnInit, OnDestroy {
 
     valets: any[] = [];
     newValet = { uname: '', pwd: '', role: 'operador' };
     showForm = false;
     confirmDeleteId: number | null = null;
+    private subs: Subscription[] = [];
 
     constructor(
         private admin: AdminService,
@@ -36,10 +38,10 @@ export class AdminValetsComponent implements OnInit {
 
     loadValets() {
         this.spinner.show();
-        this.admin.getValets().subscribe(
+        this.subs.push(this.admin.getValets().subscribe(
             (data) => { this.valets = data; this.spinner.hide(); },
             () => { this.spinner.hide(); }
-        );
+        ));
     }
 
     toggleForm() {
@@ -56,7 +58,7 @@ export class AdminValetsComponent implements OnInit {
         }
 
         this.spinner.show();
-        this.admin.createValet(this.newValet.uname, this.newValet.pwd, this.newValet.role)
+        this.subs.push(this.admin.createValet(this.newValet.uname, this.newValet.pwd, this.newValet.role)
             .subscribe(
                 () => {
                     this.notifier.addMessage('success', 'Sucesso', `Usuário '${this.newValet.uname}' criado.`);
@@ -65,7 +67,7 @@ export class AdminValetsComponent implements OnInit {
                     this.loadValets();
                 },
                 () => { this.spinner.hide(); }
-            );
+            ));
     }
 
     confirmDelete(id: number) {
@@ -79,13 +81,13 @@ export class AdminValetsComponent implements OnInit {
     deleteValet(id: number) {
         this.spinner.show();
         this.confirmDeleteId = null;
-        this.admin.deleteValet(id).subscribe(
+        this.subs.push(this.admin.deleteValet(id).subscribe(
             () => {
                 this.notifier.addMessage('success', 'Sucesso', 'Usuário removido.');
                 this.loadValets();
             },
             () => { this.spinner.hide(); }
-        );
+        ));
     }
 
     getRoleBadgeClass(role: string): string {
@@ -97,7 +99,10 @@ export class AdminValetsComponent implements OnInit {
     }
 
     logout() {
-        localStorage.removeItem('token_v');
-        this.router.navigateByUrl('/valet/login');
+        this.tokenUtil.logout();
+    }
+
+    ngOnDestroy(): void {
+        this.subs.forEach(s => s.unsubscribe());
     }
 }

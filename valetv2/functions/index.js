@@ -597,6 +597,75 @@ const lprRateMap = new Map();
 const LPR_RATE_WINDOW = 60 * 1000; // 1 minuto
 const LPR_RATE_MAX = 30; // máximo 30 requisições por minuto por câmera
 
+// Limpeza periódica de entries expiradas do rate limiter
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, entry] of lprRateMap) {
+    if (now - entry.windowStart > LPR_RATE_WINDOW * 2) { lprRateMap.delete(key); }
+  }
+}, 5 * 60 * 1000);
+
+// 4.1 — Limpeza periódica de tickets antigos (exited/cancelled/expired)
+async function cleanupOldTickets() {
+  try {
+    const db = await getPool();
+    let retentionDays = cache.get("ticket_retention_days");
+    if (retentionDays === null) {
+      const rRes = await db.request()
+        .query("SELECT config_value FROM system_config WHERE config_key = 'ticket_retention_days'");
+      retentionDays = rRes.recordset.length > 0 ? parseInt(rRes.recordset[0].config_value) : 90;
+      cache.set("ticket_retention_days", retentionDays, 24 * 60 * 60 * 1000);
+    }
+    const result = await db.request()
+      .input("days", sql.Int, retentionDays)
+      .query("DELETE FROM tickets WHERE status IN ('exited','cancelled','expired') AND created_at < DATEADD(DAY, -@days, GETDATE())");
+    if (result.rowsAffected[0] > 0) {
+      log("INFO", `Ticket cleanup: ${result.rowsAffected[0]} registros removidos (> ${retentionDays} dias)`);
+    }
+  } catch (e) {
+    log("WARN", "Ticket cleanup error", { error: e.message });
+  }
+}
+setInterval(cleanupOldTickets, 24 * 60 * 60 * 1000);
+
+// 4.2 — Monitoramento periódico de dispositivos offline
+const offlineAlertedDevices = new Set();
+async function checkDevicesOffline() {
+  try {
+    const db = await getPool();
+    const deviceTables = [
+      { type: "totem", table: "totem_devices", nameCol: "device_name" },
+      { type: "lpr", table: "lpr_devices", nameCol: "name" },
+      { type: "barrier", table: "barrier_devices", nameCol: "name" },
+    ];
+    const nowOnlineKeys = new Set();
+    for (const t of deviceTables) {
+      const result = await db.request().query(
+        `SELECT id, ${t.nameCol} AS device_name, DATEDIFF(MINUTE, last_heartbeat, GETDATE()) AS minutes_offline
+         FROM ${t.table} WHERE is_active = 1 AND last_heartbeat IS NOT NULL`
+      );
+      for (const d of result.recordset) {
+        const key = `${t.type}:${d.id}`;
+        if (d.minutes_offline > 5) {
+          if (!offlineAlertedDevices.has(key)) {
+            offlineAlertedDevices.add(key);
+            sendAlert("device_offline", { device_type: t.type, device_name: d.device_name, device_id: d.id, minutes_offline: d.minutes_offline });
+            log("WARN", `Device offline: ${t.type} "${d.device_name}" (${d.minutes_offline}min)`);
+          }
+        } else {
+          nowOnlineKeys.add(key);
+        }
+      }
+    }
+    for (const key of offlineAlertedDevices) {
+      if (nowOnlineKeys.has(key)) { offlineAlertedDevices.delete(key); }
+    }
+  } catch (e) {
+    log("WARN", "Device offline check error", { error: e.message });
+  }
+}
+setInterval(checkDevicesOffline, 5 * 60 * 1000);
+
 function lprRateLimiter(req, res, next) {
   const deviceId = req.lprDevice ? req.lprDevice.id : "unknown";
   const now = Date.now();
@@ -611,6 +680,19 @@ function lprRateLimiter(req, res, next) {
     return res.status(429).json({ error: `Rate limit excedido. Máximo ${LPR_RATE_MAX} req/min por câmera.` });
   }
   return next();
+}
+
+// Helper: Obter grace period (minutos) com cache
+async function getGraceMinutes() {
+  let val = cache.get("grace_period_minutes");
+  if (val === null) {
+    const db = await getPool();
+    const gRes = await db.request()
+      .query("SELECT config_value FROM system_config WHERE config_key = 'grace_period_minutes'");
+    val = gRes.recordset.length > 0 ? parseInt(gRes.recordset[0].config_value) : 15;
+    cache.set("grace_period_minutes", val, 5 * 60 * 1000);
+  }
+  return val;
 }
 
 // Helper: Enviar comando para cancela
@@ -987,6 +1069,13 @@ app.post("/createTicket", async (req, res) => {
     const cleanPlate = stripPlateChars(reg_no);
     const db = await getPool();
 
+    // Resolver unit_id: aceitar do body ou usar a primeira unidade ativa
+    let resolvedUnitId = parseInt(req.body.unit_id) || 0;
+    if (!resolvedUnitId) {
+      const unitRes = await db.request().query("SELECT TOP 1 id FROM parking_units WHERE active = 1 ORDER BY id");
+      resolvedUnitId = unitRes.recordset.length > 0 ? unitRes.recordset[0].id : 1;
+    }
+
     // Verificar blacklist (com cache)
     const blCacheKey = `bl:${cleanPlate}`;
     let isBlacklisted = cache.get(blCacheKey);
@@ -1039,20 +1128,22 @@ app.post("/createTicket", async (req, res) => {
         .input("amount", sql.Decimal(10, 2), 0)
         .input("paid", sql.Bit, initialPaid)
         .input("status", sql.NVarChar, initialStatus)
-        .input("unit_id", sql.Int, 1)
+        .input("unit_id", sql.Int, resolvedUnitId)
         .query(`INSERT INTO tickets (ticket_no, first_name, last_name, phone_no, reg_no, manufacturer, model, color, amount, paid, status, unit_id)
                 VALUES (@ticket_no, @first_name, @last_name, @phone_no, @reg_no, @manufacturer, @model, @color, @amount, @paid, @status, @unit_id)`);
 
       // Incrementar ocupação
       await transaction.request()
-        .query("UPDATE parking_units SET current_count = current_count + 1 WHERE id = 1 AND current_count < capacity");
+        .input("unit_id", sql.Int, resolvedUnitId)
+        .query("UPDATE parking_units SET current_count = current_count + 1 WHERE id = @unit_id AND current_count < capacity");
 
       await transaction.commit();
 
       // Verificar ocupação para alerta high_occupancy
       try {
         const occCheck = await db.request()
-          .query("SELECT capacity, current_count FROM parking_units WHERE id = 1 AND active = 1");
+          .input("unit_id", sql.Int, resolvedUnitId)
+          .query("SELECT capacity, current_count FROM parking_units WHERE id = @unit_id AND active = 1");
         if (occCheck.recordset.length > 0) {
           const u = occCheck.recordset[0];
           const pct = u.capacity > 0 ? Math.round((u.current_count / u.capacity) * 100) : 0;
@@ -1255,13 +1346,7 @@ app.post("/exit", async (req, res) => {
 
     // Grace period: verificar se ultrapassou tolerância pós-pagamento
     if (ticket.paid_at) {
-      let graceMinutes = cache.get("grace_period_minutes");
-      if (graceMinutes === null) {
-        const gRes = await db.request()
-          .query("SELECT config_value FROM system_config WHERE config_key = 'grace_period_minutes'");
-        graceMinutes = gRes.recordset.length > 0 ? parseInt(gRes.recordset[0].config_value) : 15;
-        cache.set("grace_period_minutes", graceMinutes, 5 * 60 * 1000);
-      }
+      const graceMinutes = await getGraceMinutes();
       if (graceMinutes > 0) {
         // Calcula diff no SQL para evitar mismatch de timezone
         const elapsedResult = await db.request()
@@ -1297,7 +1382,8 @@ app.post("/exit", async (req, res) => {
         .query("UPDATE tickets SET status = 'exited', exit_time = GETDATE() WHERE ticket_no = @ticket_no AND status = 'paid'");
 
       await exitTx.request()
-        .query("UPDATE parking_units SET current_count = current_count - 1 WHERE id = 1 AND current_count > 0");
+        .input("unit_id", sql.Int, ticket.unit_id || 1)
+        .query("UPDATE parking_units SET current_count = current_count - 1 WHERE id = @unit_id AND current_count > 0");
 
       await exitTx.commit();
     } catch (txErr) {
@@ -1955,13 +2041,7 @@ app.get("/api/v1/totem/receipt/:ticketNo", totemLimiter, authenticateTotem, asyn
     const totalMinutes = diffResult.recordset[0].total_minutes;
 
     // Grace period
-    let graceMinutes = cache.get("grace_period_minutes");
-    if (graceMinutes === null) {
-      const gRes = await db.request()
-        .query("SELECT config_value FROM system_config WHERE config_key = 'grace_period_minutes'");
-      graceMinutes = gRes.recordset.length > 0 ? parseInt(gRes.recordset[0].config_value) : 15;
-      cache.set("grace_period_minutes", graceMinutes, 5 * 60 * 1000);
-    }
+    const graceMinutes = await getGraceMinutes();
 
     // Remaining grace
     const graceElapsed = await db.request()
@@ -2005,13 +2085,7 @@ app.post("/api/v1/totem/heartbeat", totemLimiter, authenticateTotem, async (req,
       cache.set("pricing_config", pricing, 5 * 60 * 1000);
     }
 
-    let graceMinutes = cache.get("grace_period_minutes");
-    if (graceMinutes === null) {
-      const gRes = await db.request()
-        .query("SELECT config_value FROM system_config WHERE config_key = 'grace_period_minutes'");
-      graceMinutes = gRes.recordset.length > 0 ? parseInt(gRes.recordset[0].config_value) : 15;
-      cache.set("grace_period_minutes", graceMinutes, 5 * 60 * 1000);
-    }
+    const graceMinutes = await getGraceMinutes();
 
     return res.status(200).json({
       status: "ok",
@@ -2713,7 +2787,8 @@ app.post("/api/v1/lpr/exit", authenticateLpr, lprRateLimiter, async (req, res) =
         await lprExitTx.request().input("tno", sql.NVarChar, ticketNo)
           .query("UPDATE tickets SET status = 'exited', exit_time = GETDATE() WHERE ticket_no = @tno AND status = 'paid'");
         await lprExitTx.request()
-          .query("UPDATE parking_units SET current_count = current_count - 1 WHERE id = 1 AND current_count > 0");
+          .input("unit_id", sql.Int, ticket.unit_id || 1)
+          .query("UPDATE parking_units SET current_count = current_count - 1 WHERE id = @unit_id AND current_count > 0");
         await lprExitTx.commit();
       } catch (txErr) {
         try { await lprExitTx.rollback(); } catch (_) {}
@@ -3043,37 +3118,45 @@ app.get("/barrier/events", async (req, res) => {
 // ############################################
 const apiV1 = express.Router();
 
+// Rotas com mapeamento especial (transformam req antes do proxy)
 apiV1.post("/entry", (req, res) => { req.url = "/createTicket"; app.handle(req, res); });
 apiV1.get("/session/:plate", (req, res) => { req.query.reg_no = req.params.plate; req.url = "/plateCheck"; app.handle(req, res); });
 apiV1.post("/payment", (req, res) => { req.query.ticket = req.body.ticket_no; req.method = "PATCH"; req.url = "/user"; app.handle(req, res); });
-apiV1.post("/exit", (req, res) => { req.url = "/exit"; app.handle(req, res); });
-apiV1.get("/reports", (req, res) => { req.url = "/reports/summary"; app.handle(req, res); });
-apiV1.post("/whitelist", (req, res) => { req.url = "/whitelist"; app.handle(req, res); });
-apiV1.post("/blacklist", (req, res) => { req.url = "/blacklist"; app.handle(req, res); });
-apiV1.get("/alerts/config", (req, res) => { req.url = "/alerts/config"; app.handle(req, res); });
-apiV1.patch("/alerts/config", (req, res) => { req.url = "/alerts/config"; app.handle(req, res); });
-// [REMOVED] apiV1 sync routes — removido junto com endpoints sync (auditoria 2026-04-13)
-apiV1.get("/occupancy", (req, res) => { req.url = "/occupancy"; app.handle(req, res); });
-apiV1.get("/totem/devices", (req, res) => { req.url = "/totem/devices"; app.handle(req, res); });
-apiV1.post("/totem/devices", (req, res) => { req.url = "/totem/devices"; app.handle(req, res); });
-apiV1.patch("/totem/devices/:id", (req, res) => { req.url = "/totem/devices/" + req.params.id; app.handle(req, res); });
-apiV1.delete("/totem/devices/:id", (req, res) => { req.url = "/totem/devices/" + req.params.id; app.handle(req, res); });
-apiV1.get("/totem/transactions", (req, res) => { req.url = "/totem/transactions"; app.handle(req, res); });
 
-// Phase 4: LPR
-apiV1.get("/lpr/devices", (req, res) => { req.url = "/lpr/devices"; app.handle(req, res); });
-apiV1.post("/lpr/devices", (req, res) => { req.url = "/lpr/devices"; app.handle(req, res); });
-apiV1.patch("/lpr/devices/:id", (req, res) => { req.url = "/lpr/devices/" + req.params.id; app.handle(req, res); });
-apiV1.get("/lpr/events", (req, res) => { req.url = "/api/v1/lpr/events"; app.handle(req, res); });
+// Rotas proxy diretas (mesmo path ou path fixo)
+const directProxies = [
+  ["post", "/exit", "/exit"],
+  ["get", "/reports", "/reports/summary"],
+  ["post", "/whitelist", "/whitelist"],
+  ["post", "/blacklist", "/blacklist"],
+  ["get", "/alerts/config", "/alerts/config"],
+  ["patch", "/alerts/config", "/alerts/config"],
+  ["get", "/occupancy", "/occupancy"],
+  ["get", "/totem/devices", "/totem/devices"],
+  ["post", "/totem/devices", "/totem/devices"],
+  ["get", "/totem/transactions", "/totem/transactions"],
+  ["get", "/lpr/devices", "/lpr/devices"],
+  ["post", "/lpr/devices", "/lpr/devices"],
+  ["get", "/lpr/events", "/api/v1/lpr/events"],
+  ["get", "/barrier/devices", "/barrier/devices"],
+  ["post", "/barrier/devices", "/barrier/devices"],
+  ["get", "/barrier/events", "/barrier/events"],
+  ["post", "/card/refund", "/api/v1/card/refund"],
+];
+for (const [method, apiPath, legacyPath] of directProxies) {
+  apiV1[method](apiPath, (req, res) => { req.url = legacyPath; app.handle(req, res); });
+}
 
-// Phase 4: Barrier
-apiV1.get("/barrier/devices", (req, res) => { req.url = "/barrier/devices"; app.handle(req, res); });
-apiV1.post("/barrier/devices", (req, res) => { req.url = "/barrier/devices"; app.handle(req, res); });
-apiV1.patch("/barrier/devices/:id", (req, res) => { req.url = "/barrier/devices/" + req.params.id; app.handle(req, res); });
-apiV1.get("/barrier/events", (req, res) => { req.url = "/barrier/events"; app.handle(req, res); });
-
-// Phase 4: Card
-apiV1.post("/card/refund", (req, res) => { req.url = "/api/v1/card/refund"; app.handle(req, res); });
+// Rotas proxy com :id param
+const paramProxies = [
+  ["patch", "/totem/devices/:id", "/totem/devices/"],
+  ["delete", "/totem/devices/:id", "/totem/devices/"],
+  ["patch", "/lpr/devices/:id", "/lpr/devices/"],
+  ["patch", "/barrier/devices/:id", "/barrier/devices/"],
+];
+for (const [method, apiPath, legacyPrefix] of paramProxies) {
+  apiV1[method](apiPath, (req, res) => { req.url = legacyPrefix + req.params.id; app.handle(req, res); });
+}
 
 app.use("/api/v1", apiV1);
 
@@ -3129,8 +3212,8 @@ if (process.env.HTTPS_ENABLED === "true") {
   const keyPath = process.env.HTTPS_KEY;
   const certPath = process.env.HTTPS_CERT;
   if (!keyPath || !certPath || !fs.existsSync(keyPath) || !fs.existsSync(certPath)) {
-    log("ERROR", "HTTPS_ENABLED=true but HTTPS_KEY/HTTPS_CERT not found. Falling back to HTTP.");
-    server = http.createServer(app);
+    log("FATAL", "HTTPS_ENABLED=true but HTTPS_KEY/HTTPS_CERT not found. Aborting startup.");
+    process.exit(1);
   } else {
     const sslOptions = {
       key: fs.readFileSync(keyPath),

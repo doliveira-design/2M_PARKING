@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 import { AdminService } from '../services/admin.service';
 import { TokenUtilService } from '../services/token-util.service';
@@ -12,7 +13,7 @@ import { NgxSpinnerService } from 'ngx-spinner';
     templateUrl: '../templates/admin-lpr.component.html',
     styleUrls: ['../../styles/components/admin-lpr.component.scss']
 })
-export class AdminLprComponent implements OnInit {
+export class AdminLprComponent implements OnInit, OnDestroy {
 
     devices: any[] = [];
     events: any[] = [];
@@ -26,6 +27,7 @@ export class AdminLprComponent implements OnInit {
     filterEventType: string = '';
 
     activeTab: 'devices' | 'events' = 'devices';
+    private subs: Subscription[] = [];
 
     constructor(
         private admin: AdminService,
@@ -52,10 +54,10 @@ export class AdminLprComponent implements OnInit {
 
     loadDevices() {
         this.spinner.show();
-        this.admin.getLprDevices().subscribe(
+        this.subs.push(this.admin.getLprDevices().subscribe(
             (data) => { this.devices = data; this.spinner.hide(); },
             () => { this.spinner.hide(); }
-        );
+        ));
     }
 
     loadEvents() {
@@ -64,10 +66,10 @@ export class AdminLprComponent implements OnInit {
         if (this.filterPlate) { params.plate = this.filterPlate; }
         if (this.filterDeviceId) { params.device_id = parseInt(this.filterDeviceId, 10); }
         if (this.filterEventType) { params.event_type = this.filterEventType; }
-        this.admin.getLprEvents(params).subscribe(
+        this.subs.push(this.admin.getLprEvents(params).subscribe(
             (data) => { this.events = data; this.spinner.hide(); },
             () => { this.spinner.hide(); }
-        );
+        ));
     }
 
     toggleForm() {
@@ -82,7 +84,7 @@ export class AdminLprComponent implements OnInit {
             return;
         }
         this.spinner.show();
-        this.admin.createLprDevice(this.newDevice).subscribe(
+        this.subs.push(this.admin.createLprDevice(this.newDevice).subscribe(
             (res) => {
                 if (res && res.api_key) { this.createdKey = res.api_key; }
                 this.notifier.addMessage('success', 'Sucesso', `Câmera '${this.newDevice.name}' registrada.`);
@@ -91,18 +93,18 @@ export class AdminLprComponent implements OnInit {
                 this.loadDevices();
             },
             () => { this.spinner.hide(); }
-        );
+        ));
     }
 
     toggleActive(device: any) {
         this.spinner.show();
-        this.admin.updateLprDevice(device.id, { is_active: !device.is_active }).subscribe(
+        this.subs.push(this.admin.updateLprDevice(device.id, { is_active: !device.is_active }).subscribe(
             () => {
                 this.notifier.addMessage('success', 'Sucesso', `Câmera ${!device.is_active ? 'ativada' : 'desativada'}.`);
                 this.loadDevices();
             },
             () => { this.spinner.hide(); }
-        );
+        ));
     }
 
     formatPlate(plate: string): string {
@@ -138,7 +140,10 @@ export class AdminLprComponent implements OnInit {
     }
 
     logout() {
-        localStorage.removeItem('token_v');
-        this.router.navigateByUrl('/valet/login');
+        this.tokenUtil.logout();
+    }
+
+    ngOnDestroy(): void {
+        this.subs.forEach(s => s.unsubscribe());
     }
 }

@@ -57,7 +57,6 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     }
 
     logout() {
-        localStorage.removeItem('token_v');
-        this.router.navigateByUrl('/valet/login');
+        this.tokenUtil.logout();
     }
 }

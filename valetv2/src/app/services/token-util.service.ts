@@ -30,6 +30,11 @@ export class TokenUtilService {
   decodeToken(name?: string): any {
     const token = this.getToken(name);
     if (!token) { return null; }
+    return this.decodeTokenString(token);
+  }
+
+  decodeTokenString(token: string): any {
+    if (!token) { return null; }
     try {
       return JSON.parse(atob(token.split('.')[1]));
     } catch (e) {

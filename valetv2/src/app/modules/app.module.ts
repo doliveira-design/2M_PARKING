@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { QRCodeModule } from 'angularx-qrcode';
 import { NgxSpinnerModule } from 'ngx-spinner';
@@ -35,6 +35,7 @@ import { NotifierService } from '../services/notifier.service';
 import { PhoneUtilService } from '../services/phone-util.service';
 import { PlateUtilService } from '../services/plate-util.service';
 import { AdminService } from '../services/admin.service';
+import { AuthInterceptor } from '../services/auth-interceptor.service';
 
 @NgModule({
   declarations: [
@@ -75,7 +76,8 @@ import { AdminService } from '../services/admin.service';
     NotifierService,
     PhoneUtilService,
     PlateUtilService,
-    AdminService
+    AdminService,
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
   ],
   bootstrap: [AppComponent]
 })
