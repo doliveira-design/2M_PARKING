@@ -1,6 +1,12 @@
 <div class="valet-nav no-print">
     <a routerLink="/valet/ticket" class="nav-link active">Gerar Ticket</a>
     <a routerLink="/valet/verificar" class="nav-link">Verificar Saída</a>
+    <a routerLink="/admin/dashboard" class="nav-link nav-admin" *ngIf="isAdmin">
+        <i class="fas fa-cog"></i> Admin
+    </a>
+    <a class="nav-link nav-logout" (click)="logout()">
+        <i class="fas fa-sign-out-alt"></i> Sair
+    </a>
 </div>
 
 <div *ngIf="!generatedTicket">
@@ -271,7 +277,8 @@
         </div>
 
         <button class="form-btn btn-blue"
-            (click)="generateTicket(userDetailForm.form)">
+            (click)="generateTicket(userDetailForm.form)"
+            [disabled]="submitting">
             Gerar Ticket
         </button>
     </form>

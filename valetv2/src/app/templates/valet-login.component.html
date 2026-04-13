@@ -65,7 +65,8 @@
             </div>
         </div>
         <button class="form-btn btn-blue"
-            (click)="login(valetLogin.form)">
+            (click)="login(valetLogin.form)"
+            [disabled]="submitting">
             Entrar
         </button>
     </form>

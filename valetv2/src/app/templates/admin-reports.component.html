@@ -1,0 +1,130 @@
+<div class="admin-layout">
+    <nav class="admin-nav">
+        <div class="nav-brand">2M Parking <span class="nav-badge">Admin</span></div>
+        <div class="nav-links">
+            <a routerLink="/admin/dashboard" class="nav-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a routerLink="/admin/valets" class="nav-link"><i class="fas fa-users"></i> Usuários</a>
+            <a routerLink="/admin/listas" class="nav-link"><i class="fas fa-list"></i> Listas</a>
+            <a routerLink="/admin/tarifacao" class="nav-link"><i class="fas fa-money-bill-alt"></i> Tarifação</a>
+            <a routerLink="/admin/relatorios" class="nav-link active"><i class="fas fa-chart-bar"></i> Relatórios</a>
+            <a routerLink="/admin/alertas" class="nav-link"><i class="fas fa-bell"></i> Alertas</a>
+            <a routerLink="/admin/totems" class="nav-link"><i class="fas fa-desktop"></i> Totems</a>
+            <a routerLink="/admin/lpr" class="nav-link"><i class="fas fa-camera"></i> LPR</a>
+            <a routerLink="/admin/cancelas" class="nav-link"><i class="fas fa-road"></i> Cancelas</a>
+            <a routerLink="/valet/ticket" class="nav-link nav-separator"><i class="fas fa-ticket-alt"></i> Operações</a>
+            <a (click)="logout()" class="nav-link nav-logout"><i class="fas fa-sign-out-alt"></i> Sair</a>
+        </div>
+    </nav>
+
+    <main class="admin-content">
+        <h2 class="admin-title">Relatórios</h2>
+
+        <!-- Filtros -->
+        <div class="filter-bar">
+            <div class="filter-field">
+                <label>De</label>
+                <input type="date" [(ngModel)]="filterFrom" />
+            </div>
+            <div class="filter-field">
+                <label>Até</label>
+                <input type="date" [(ngModel)]="filterTo" />
+            </div>
+            <button class="btn-action btn-blue" (click)="applyFilter()">
+                <i class="fas fa-search"></i> Filtrar
+            </button>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="summary-cards" *ngIf="summary">
+            <div class="summary-card">
+                <span class="s-value">{{ summary.total_tickets }}</span>
+                <span class="s-label">Total Tickets</span>
+            </div>
+            <div class="summary-card card-green">
+                <span class="s-value">{{ summary.total_paid }}</span>
+                <span class="s-label">Pagos</span>
+            </div>
+            <div class="summary-card card-orange">
+                <span class="s-value">{{ summary.total_pending }}</span>
+                <span class="s-label">Pendentes</span>
+            </div>
+            <div class="summary-card card-teal">
+                <span class="s-value">{{ summary.total_exited }}</span>
+                <span class="s-label">Saíram</span>
+            </div>
+            <div class="summary-card card-purple">
+                <span class="s-value">R$ {{ summary.total_revenue.toFixed(2) }}</span>
+                <span class="s-label">Receita Total</span>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab" [class.tab-active]="activeTab === 'summary'" (click)="setTab('summary')">
+                <i class="fas fa-calendar-alt"></i> Por Dia
+            </button>
+            <button class="tab" [class.tab-active]="activeTab === 'audit'" (click)="setTab('audit')">
+                <i class="fas fa-history"></i> Audit Log
+            </button>
+        </div>
+
+        <!-- Tab: Relatório Diário -->
+        <div class="tab-content" *ngIf="activeTab === 'summary'">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Tickets</th>
+                        <th>Pagos</th>
+                        <th>Receita</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let d of daily">
+                        <td>{{ d.date | date:'dd/MM/yyyy' }}</td>
+                        <td>{{ d.tickets }}</td>
+                        <td>{{ d.paid }}</td>
+                        <td><strong>R$ {{ d.revenue.toFixed(2) }}</strong></td>
+                    </tr>
+                    <tr *ngIf="daily.length === 0">
+                        <td colspan="4" class="empty-row">Nenhum dado no período.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Tab: Audit Log -->
+        <div class="tab-content" *ngIf="activeTab === 'audit'">
+            <table class="admin-table audit-table">
+                <thead>
+                    <tr>
+                        <th>Data/Hora</th>
+                        <th>Ação</th>
+                        <th>Usuário</th>
+                        <th>Detalhes</th>
+                        <th>IP</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let log of auditLogs">
+                        <td class="nowrap">{{ log.created_at | date:'dd/MM HH:mm:ss' }}</td>
+                        <td>
+                            <span class="action-badge" [ngClass]="getActionClass(log.action)">
+                                {{ getActionLabel(log.action) }}
+                            </span>
+                        </td>
+                        <td>{{ log.user_role || '—' }}</td>
+                        <td class="details-cell">{{ log.details || '—' }}</td>
+                        <td class="nowrap">{{ log.ip }}</td>
+                    </tr>
+                    <tr *ngIf="auditLogs.length === 0">
+                        <td colspan="5" class="empty-row">Nenhum registro no audit log.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+
+<ngx-spinner type="ball-spin-clockwise" size="medium"></ngx-spinner>
+<app-notifier></app-notifier>

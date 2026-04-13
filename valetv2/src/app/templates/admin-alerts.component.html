@@ -1,0 +1,94 @@
+<div class="admin-layout">
+    <nav class="admin-nav">
+        <div class="nav-brand">2M Parking <span class="nav-badge">Admin</span></div>
+        <div class="nav-links">
+            <a routerLink="/admin/dashboard" class="nav-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a routerLink="/admin/valets" class="nav-link"><i class="fas fa-users"></i> Usuários</a>
+            <a routerLink="/admin/listas" class="nav-link"><i class="fas fa-list"></i> Listas</a>
+            <a routerLink="/admin/tarifacao" class="nav-link"><i class="fas fa-money-bill-alt"></i> Tarifação</a>
+            <a routerLink="/admin/relatorios" class="nav-link"><i class="fas fa-chart-bar"></i> Relatórios</a>
+            <a routerLink="/admin/alertas" class="nav-link active"><i class="fas fa-bell"></i> Alertas</a>
+            <a routerLink="/admin/totems" class="nav-link"><i class="fas fa-desktop"></i> Totems</a>
+            <a routerLink="/admin/lpr" class="nav-link"><i class="fas fa-camera"></i> LPR</a>
+            <a routerLink="/admin/cancelas" class="nav-link"><i class="fas fa-road"></i> Cancelas</a>
+            <a routerLink="/valet/ticket" class="nav-link nav-separator"><i class="fas fa-ticket-alt"></i> Operações</a>
+            <a (click)="logout()" class="nav-link nav-logout"><i class="fas fa-sign-out-alt"></i> Sair</a>
+        </div>
+    </nav>
+
+    <main class="admin-content">
+        <div class="admin-header">
+            <h2 class="admin-title">Configuração de Alertas</h2>
+            <button class="btn-action" [ngClass]="editing ? 'btn-gray' : 'btn-blue'" (click)="toggleEdit()">
+                <i class="fas" [class.fa-pencil-alt]="!editing" [class.fa-times]="editing"></i>
+                {{ editing ? 'Cancelar' : 'Editar' }}
+            </button>
+        </div>
+
+        <!-- Visualização -->
+        <div class="alerts-card" *ngIf="config && !editing">
+            <div class="alerts-status">
+                <div class="status-indicator" [ngClass]="config.alerts_enabled === 'true' ? 'status-on' : 'status-off'">
+                    <i class="fas" [class.fa-check-circle]="config.alerts_enabled === 'true'" [class.fa-times-circle]="config.alerts_enabled !== 'true'"></i>
+                    {{ config.alerts_enabled === 'true' ? 'Alertas Ativados' : 'Alertas Desativados' }}
+                </div>
+            </div>
+
+            <div class="alerts-detail" *ngIf="config.alerts_webhook_url">
+                <div class="detail-label"><i class="fas fa-link"></i> Webhook URL</div>
+                <div class="detail-value">{{ config.alerts_webhook_url }}</div>
+            </div>
+
+            <div class="alerts-detail" *ngIf="config.alerts_events">
+                <div class="detail-label"><i class="fas fa-list-ul"></i> Eventos Monitorados</div>
+                <div class="events-tags">
+                    <span class="event-tag" *ngFor="let evt of getEventsList()">{{ getEventLabel(evt) }}</span>
+                </div>
+            </div>
+
+            <div class="alerts-empty" *ngIf="!config.alerts_events && config.alerts_enabled !== 'true'">
+                <i class="fas fa-info-circle"></i>
+                Nenhum alerta configurado. Clique em "Editar" para configurar.
+            </div>
+        </div>
+
+        <!-- Edição -->
+        <div class="alerts-card" *ngIf="editing">
+            <div class="edit-section">
+                <label class="toggle-label">
+                    <input type="checkbox" [(ngModel)]="editData.alerts_enabled" />
+                    <span class="toggle-text">Ativar Alertas</span>
+                </label>
+            </div>
+
+            <div class="edit-section" *ngIf="editData.alerts_enabled">
+                <div class="edit-field">
+                    <label>Webhook URL</label>
+                    <input type="url" [(ngModel)]="editData.alerts_webhook_url"
+                           placeholder="https://hooks.exemplo.com/webhook" />
+                    <span class="field-hint">URL que receberá as notificações POST em formato JSON.</span>
+                </div>
+            </div>
+
+            <div class="edit-section" *ngIf="editData.alerts_enabled">
+                <label class="section-label">Eventos para Notificar</label>
+                <div class="events-checkboxes">
+                    <label class="event-checkbox" *ngFor="let evt of availableEvents">
+                        <input type="checkbox"
+                               [checked]="isEventSelected(evt.key)"
+                               (change)="toggleEvent(evt.key)" />
+                        <span class="event-name">{{ evt.label }}</span>
+                        <span class="event-key">{{ evt.key }}</span>
+                    </label>
+                </div>
+            </div>
+
+            <button class="btn-action btn-green" (click)="saveConfig()">
+                <i class="fas fa-check"></i> Salvar Configuração
+            </button>
+        </div>
+
+        <ngx-spinner type="ball-clip-rotate" size="medium"></ngx-spinner>
+        <app-notifier></app-notifier>
+    </main>
+</div>

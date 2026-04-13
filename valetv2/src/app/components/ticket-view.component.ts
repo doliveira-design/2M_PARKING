@@ -1,9 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
+import { Subscription } from 'rxjs';
+
 import { DataService } from '../services/data.service';
 import { TokenUtilService } from '../services/token-util.service';
 import { NotifierService } from '../services/notifier.service';
+import { environment } from '../../environments/environment';
 
 import { switchMap } from 'rxjs/operators';
 
@@ -37,6 +40,10 @@ export class TicketViewComponent implements OnInit, OnDestroy {
     showPayment = false;
     callCarPressed = false;
     buttonCtaText: String = '';
+    qrData: string = '';
+
+    private tokenSub: Subscription;
+    private dataSub: Subscription;
 
     constructor(private data: DataService,
         private tokenUtil: TokenUtilService,
@@ -46,17 +53,19 @@ export class TicketViewComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        this.tokenUtil.isTokenValid()
+        this.tokenSub = this.tokenUtil.isTokenValid()
             .subscribe(() => {
                 this.getData();
             });
     }
 
     ngOnDestroy(): void {
+        if (this.tokenSub) { this.tokenSub.unsubscribe(); }
+        if (this.dataSub) { this.dataSub.unsubscribe(); }
     }
 
     getData() {
-        this.route.params
+        this.dataSub = this.route.params
             .pipe(
                 switchMap(param => {
                     this.ticket_no = param.ticket_no;
@@ -68,6 +77,7 @@ export class TicketViewComponent implements OnInit, OnDestroy {
                 this.buttonCtaText = this.user.ticket.paid ?
                     'Chamar Veículo' : 'Efetuar Pagamento';
                 this.ticketPaid = this.user.ticket.paid;
+                this.qrData = `${window.location.origin}/validate/${this.ticket_no}`;
             });
     }
 
@@ -79,10 +89,8 @@ export class TicketViewComponent implements OnInit, OnDestroy {
             this.notifier.addMessage(
                 'info',
                 'Veículo Chamado',
-                'Seu veículo foi solicitado.'
+                'Seu veículo foi solicitado. Apresente o QR Code ao manobrista.'
             );
-            this.router.navigateByUrl(`validate/${this.ticket_no}`,
-                { skipLocationChange: false });
         }
     }
 

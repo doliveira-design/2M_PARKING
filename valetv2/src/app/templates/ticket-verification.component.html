@@ -1,6 +1,12 @@
 <div class="valet-nav">
     <a routerLink="/valet/ticket" class="nav-link">Gerar Ticket</a>
     <a routerLink="/valet/verificar" class="nav-link active">Verificar Saída</a>
+    <a routerLink="/admin/dashboard" class="nav-link nav-admin" *ngIf="isAdmin">
+        <i class="fas fa-cog"></i> Admin
+    </a>
+    <a class="nav-link nav-logout" (click)="logout()">
+        <i class="fas fa-sign-out-alt"></i> Sair
+    </a>
 </div>
 
 <div class="container">
@@ -58,21 +64,98 @@
             </div>
         </div>
 
-        <div class="result-action" *ngIf="!ticketResult.paid">
+        <div class="result-action" *ngIf="!ticketResult.paid && !showPaymentForm">
             <p class="warning-text">
                 <i class="fas fa-exclamation-triangle"></i>
-                Pagamento pendente! O cliente deve efetuar o pagamento antes de retirar o veículo.
+                Pagamento pendente! Registre o pagamento para liberar o veículo.
             </p>
-            <button class="form-btn btn-test" (click)="simulatePayment()">
-                <i class="fas fa-flask"></i> Simular Pagamento (Teste)
+            <button class="form-btn btn-pay" (click)="simulatePayment()">
+                <i class="fas fa-cash-register"></i> Registrar Pagamento
             </button>
         </div>
 
-        <div class="result-action" *ngIf="ticketResult.paid">
+        <div class="payment-form" *ngIf="!ticketResult.paid && showPaymentForm">
+            <p class="payment-form-title">
+                <i class="fas fa-money-bill-wave"></i>
+                Forma de Pagamento
+            </p>
+            <div class="payment-methods">
+                <label class="method-option" [ngClass]="{'selected': paymentMethod === 'dinheiro'}">
+                    <input type="radio" name="paymentMethod" value="dinheiro" [(ngModel)]="paymentMethod">
+                    <i class="fas fa-money-bill-alt"></i>
+                    <span>Dinheiro</span>
+                </label>
+                <label class="method-option" [ngClass]="{'selected': paymentMethod === 'cartao'}">
+                    <input type="radio" name="paymentMethod" value="cartao" [(ngModel)]="paymentMethod">
+                    <i class="fas fa-credit-card"></i>
+                    <span>Cartão</span>
+                </label>
+                <label class="method-option" [ngClass]="{'selected': paymentMethod === 'pix'}">
+                    <input type="radio" name="paymentMethod" value="pix" [(ngModel)]="paymentMethod">
+                    <i class="fas fa-qrcode"></i>
+                    <span>PIX</span>
+                </label>
+                <label class="method-option" [ngClass]="{'selected': paymentMethod === 'cortesia'}">
+                    <input type="radio" name="paymentMethod" value="cortesia" [(ngModel)]="paymentMethod">
+                    <i class="fas fa-gift"></i>
+                    <span>Cortesia</span>
+                </label>
+            </div>
+            <div class="payment-confirm-area">
+                <button class="form-btn btn-confirm" (click)="confirmPayment()" [disabled]="processing">
+                    <i class="fas fa-check"></i> Confirmar Pagamento
+                </button>
+                <button class="form-btn btn-cancel" (click)="cancelPayment()">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+            </div>
+        </div>
+
+        <div class="result-action" *ngIf="ticketResult.paid && !exitDone">
             <p class="success-text">
                 <i class="fas fa-check-circle"></i>
-                Pagamento confirmado. O veículo pode ser liberado.
+                Pagamento confirmado{{ ticketResult.payment_method ? ' via ' + getMethodLabel(ticketResult.payment_method) : '' }}. O veículo pode ser liberado.
             </p>
+            <button class="form-btn btn-exit" (click)="exitVehicle()" [disabled]="processing">
+                <i class="fas fa-car"></i> Liberar Veículo
+            </button>
+        </div>
+
+        <!-- Recibo de Saída -->
+        <div *ngIf="exitDone" class="receipt-card">
+            <div class="receipt-header">
+                <i class="fas fa-check-circle"></i>
+                <span>Veículo Liberado</span>
+            </div>
+            <div class="receipt-info">
+                <div class="result-row">
+                    <span class="result-label">Ticket</span>
+                    <span class="result-value">{{ ticketResult.ticket_no }}</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Placa</span>
+                    <span class="result-value plate-value">{{ formatPlateDisplay(ticketResult.reg_no) }}</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Cliente</span>
+                    <span class="result-value">{{ ticketResult.first_name }} {{ ticketResult.last_name }}</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Valor Pago</span>
+                    <span class="result-value">R$ {{ ticketResult.amount | number:'1.2-2' }}</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Pagamento</span>
+                    <span class="result-value">{{ getMethodLabel(ticketResult.payment_method) }}</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Saída</span>
+                    <span class="result-value">{{ exitTime }}</span>
+                </div>
+            </div>
+            <button class="form-btn btn-print-receipt" (click)="printReceipt()">
+                <i class="fas fa-print"></i> Imprimir Recibo
+            </button>
         </div>
 
         <button class="form-btn btn-new" (click)="clearSearch()">

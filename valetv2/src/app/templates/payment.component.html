@@ -1,52 +1,60 @@
-<div class="container">
-    <h2>
-        Pague seu ticket
-    </h2>
-    <p>Você pode usar seu Cartão de Crédito ou Débito</p>
+<div class="payment-container">
+    <div class="payment-header">
+        <i class="fas fa-money-bill-wave payment-icon"></i>
+        <h2>Pagamento</h2>
+    </div>
 
-    <form #paymentForm="ngForm" class="form-container">
-        <div class="form-item">
-            <label for="ccNum">
-                Número do Cartão
-            </label>
-            <input type="text"
-                placeholder="Digite os 14 dígitos do cartão"
-                required
-                pattern="[0-9]{14}"
-                name="ccNum"
-                [(ngModel)]="paymentDetails.no"
-                #ccNum>
+    <div class="payment-info-card">
+        <div class="payment-row" *ngIf="ticketNo">
+            <span class="payment-label">Ticket</span>
+            <span class="payment-value">{{ ticketNo }}</span>
         </div>
-        <div class="form-item">
-            <label for="cvv">
-                CVV
-            </label>
-            <input type="text"
-                placeholder="Digite o CVV do cartão"
-                required
-                min="3"
-                max="5"
-                pattern="^(\d{3,5})$"
-                name="cvv"
-                [(ngModel)]="paymentDetails.cvv"
-                #cvv>
+        <div class="payment-row highlight">
+            <span class="payment-label">Valor a Pagar</span>
+            <span class="payment-value amount">R$ {{ amount | number:'1.2-2' }}</span>
         </div>
-        <div class="form-item">
-            <label for="expiry">
-                Validade
-            </label>
-            <input type="date"
-                placeholder="Digite a data de validade do cartão"
-                required
-                min="2018-08-27"
-                max="2030-08-27"
-                name="expiry"
-                [(ngModel)]="paymentDetails.expiry"
-                #expiry>
+    </div>
+
+    <p class="method-title">Escolha a forma de pagamento:</p>
+
+    <div class="payment-methods">
+        <div class="method-card" (click)="selectMethod('pix')">
+            <div class="method-icon pix-color">
+                <i class="fas fa-qrcode"></i>
+            </div>
+            <div class="method-info">
+                <span class="method-name">PIX</span>
+                <span class="method-desc">Pague escaneando o QR Code</span>
+            </div>
+            <i class="fas fa-chevron-right method-arrow"></i>
         </div>
-        <button class="form-btn btn-blue"
-            (click)="callPaymentApi(paymentForm.form)">
-            Pagar
-        </button>
-    </form>
+
+        <div class="method-card" (click)="selectMethod('cartao')">
+            <div class="method-icon card-color">
+                <i class="fas fa-credit-card"></i>
+            </div>
+            <div class="method-info">
+                <span class="method-name">Cartão</span>
+                <span class="method-desc">Crédito ou débito</span>
+            </div>
+            <i class="fas fa-chevron-right method-arrow"></i>
+        </div>
+
+        <div class="method-card presencial">
+            <div class="method-icon cash-color">
+                <i class="fas fa-user-tie"></i>
+            </div>
+            <div class="method-info">
+                <span class="method-name">Presencial</span>
+                <span class="method-desc">Pague diretamente ao manobrista</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="presencial-instructions">
+        <p>
+            <i class="fas fa-info-circle"></i>
+            Para pagamento presencial, dirija-se ao manobrista com o QR Code do seu ticket.
+        </p>
+    </div>
 </div>

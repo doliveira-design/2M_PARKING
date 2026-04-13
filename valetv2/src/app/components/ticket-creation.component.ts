@@ -39,7 +39,9 @@ export class TicketCreationComponent implements OnInit, OnDestroy {
     };
 
     loginPressed = false;
+    submitting = false;
     generatedTicket: any = null;
+    isAdmin = false;
 
     constructor(private data: DataService,
         private tokenUtil: TokenUtilService,
@@ -53,6 +55,7 @@ export class TicketCreationComponent implements OnInit, OnDestroy {
         this.sub =
             this.tokenUtil.isTokenValid(true, 'token_v')
             .subscribe();
+        this.isAdmin = this.tokenUtil.getRole('token_v') === 'admin';
     }
     ngOnDestroy(): void {
         this.sub.unsubscribe();
@@ -89,9 +92,11 @@ export class TicketCreationComponent implements OnInit, OnDestroy {
     }
 
     generateTicket(form) {
+        if (this.submitting) { return; }
         this.spinner.show();
 
         this.loginPressed = true;
+        this.submitting = true;
         const status = form.status;
 
         // normalizar placa: remover caracteres especiais e converter para uppercase
@@ -104,6 +109,7 @@ export class TicketCreationComponent implements OnInit, OnDestroy {
             this.data.createTicket(form.value, this.tokenUtil.getToken('token_v'))
                 .subscribe((result: any) => {
                     this.spinner.hide();
+                    this.submitting = false;
                     this.generatedTicket = result.ticket_data || {
                         ticket_no: result.ticket_no,
                         first_name: form.value.first_name,
@@ -116,7 +122,12 @@ export class TicketCreationComponent implements OnInit, OnDestroy {
                     };
                     form.reset();
                     this.loginPressed = false;
+                }, (err) => {
+                    this.submitting = false;
                 });
+        } else {
+            this.submitting = false;
+            this.spinner.hide();
         }
     }
 
@@ -134,6 +145,10 @@ export class TicketCreationComponent implements OnInit, OnDestroy {
 
     newTicket() {
         this.generatedTicket = null;
+    }
+
+    logout() {
+        this.tokenUtil.logout();
     }
 
 }

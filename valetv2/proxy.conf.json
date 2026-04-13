@@ -1,50 +1,8 @@
 {
-  "/api/authorizeValet": {
-    "target": "https://authorizevalet-qdiln2f3mq-uc.a.run.app",
-    "secure": true,
+  "/api": {
+    "target": "http://localhost:3000",
+    "secure": false,
     "changeOrigin": true,
-    "pathRewrite": { "^/api/authorizeValet": "" }
-  },
-  "/api/authorizeUser": {
-    "target": "https://authorizeuser-qdiln2f3mq-uc.a.run.app",
-    "secure": true,
-    "changeOrigin": true,
-    "pathRewrite": { "^/api/authorizeUser": "" }
-  },
-  "/api/valetVerify": {
-    "target": "https://valetverify-qdiln2f3mq-uc.a.run.app",
-    "secure": true,
-    "changeOrigin": true,
-    "pathRewrite": { "^/api/valetVerify": "" }
-  },
-  "/api/userVerify": {
-    "target": "https://userverify-qdiln2f3mq-uc.a.run.app",
-    "secure": true,
-    "changeOrigin": true,
-    "pathRewrite": { "^/api/userVerify": "" }
-  },
-  "/api/createTicket": {
-    "target": "https://createticket-qdiln2f3mq-uc.a.run.app",
-    "secure": true,
-    "changeOrigin": true,
-    "pathRewrite": { "^/api/createTicket": "" }
-  },
-  "/api/user": {
-    "target": "https://user-qdiln2f3mq-uc.a.run.app",
-    "secure": true,
-    "changeOrigin": true,
-    "pathRewrite": { "^/api/user": "" }
-  },
-  "/api/qrcode": {
-    "target": "https://qrcode-qdiln2f3mq-uc.a.run.app",
-    "secure": true,
-    "changeOrigin": true,
-    "pathRewrite": { "^/api/qrcode": "" }
-  },
-  "/api/setupValet": {
-    "target": "https://setupvalet-qdiln2f3mq-uc.a.run.app",
-    "secure": true,
-    "changeOrigin": true,
-    "pathRewrite": { "^/api/setupValet": "" }
+    "pathRewrite": { "^/api": "" }
   }
 }

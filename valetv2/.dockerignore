@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+functions/node_modules/
+
+# Build outputs
+dist/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# Firebase (legacy - not used)
+firebase.json
+firestore.rules
+firestore.indexes.json
+storage.rules
+
+# Tests
+e2e/
+src/app/tests/
+**/*.spec.ts
+karma.conf.js
+protractor.conf.js
+
+# Dev scripts
+functions/scripts/archive/
+functions/scripts/backup-db.ps1
+functions/scripts/monitor.ps1
+
+# Misc
+*.bak
+*.swp
+*.tmp
+README.md

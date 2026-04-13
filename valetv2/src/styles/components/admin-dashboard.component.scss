@@ -1,0 +1,216 @@
+@import '../../styles/global/styles.scss';
+
+.admin-layout {
+    display: flex;
+    min-height: 100vh;
+    background: $light-white;
+}
+
+.admin-nav {
+    width: 220px;
+    background: $charcoal-black;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    position: fixed;
+    height: 100vh;
+    overflow-y: auto;
+
+    .nav-brand {
+        padding: 20px 16px;
+        font-size: 18px;
+        font-weight: 900;
+        border-bottom: 1px solid #444;
+
+        .nav-badge {
+            background: $default-blue;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-left: 4px;
+        }
+    }
+
+    .nav-links {
+        display: flex;
+        flex-direction: column;
+        padding: 10px 0;
+    }
+
+    .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 16px;
+        color: #bbb;
+        text-decoration: none;
+        font-size: 14px;
+        transition: background 0.2s, color 0.2s;
+        cursor: pointer;
+
+        i {
+            width: 20px;
+            text-align: center;
+        }
+
+        &:hover {
+            background: #333;
+            color: #fff;
+        }
+
+        &.active {
+            background: $default-blue;
+            color: #fff;
+        }
+    }
+
+    .nav-separator {
+        margin-top: 20px;
+        border-top: 1px solid #444;
+        padding-top: 12px;
+    }
+
+    .nav-logout {
+        color: $danger-red;
+        &:hover { background: rgba($danger-red, 0.15); color: lighten($danger-red, 10%); }
+    }
+}
+
+.admin-content {
+    margin-left: 220px;
+    padding: 30px;
+    flex: 1;
+    max-width: 1000px;
+}
+
+.admin-title {
+    font-size: 22px;
+    font-weight: 900;
+    color: $charcoal-black;
+    margin: 0 0 24px 0;
+    text-transform: uppercase;
+}
+
+.dashboard-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 30px;
+}
+
+.dash-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 20px;
+    border-radius: 8px;
+    color: #fff;
+
+    .card-icon {
+        font-size: 28px;
+        opacity: 0.8;
+    }
+
+    .card-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .card-value {
+        font-size: 24px;
+        font-weight: 900;
+    }
+
+    .card-label {
+        font-size: 12px;
+        text-transform: uppercase;
+        opacity: 0.85;
+    }
+}
+
+.card-blue { background: $default-blue; }
+.card-green { background: $success-green; }
+.card-orange { background: #e67e22; }
+.card-red { background: $danger-red; }
+.card-purple { background: #8e44ad; }
+.card-teal { background: #16a085; }
+
+.occupancy-bar {
+    background: #fff;
+    border: 1px solid $border-gray;
+    border-radius: 8px;
+    padding: 20px;
+
+    .bar-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        font-weight: 700;
+        font-size: 14px;
+        color: $text-gray;
+    }
+
+    .bar-track {
+        height: 24px;
+        background: #eee;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .bar-fill {
+        height: 100%;
+        background: $success-green;
+        border-radius: 12px;
+        transition: width 0.5s ease;
+
+        &.bar-warning { background: #e67e22; }
+        &.bar-danger { background: $danger-red; }
+    }
+
+    .bar-footer {
+        margin-top: 8px;
+        font-size: 13px;
+        color: $silver;
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-layout {
+        flex-direction: column;
+    }
+
+    .admin-nav {
+        width: 100%;
+        height: auto;
+        position: relative;
+
+        .nav-links {
+            flex-direction: row;
+            flex-wrap: wrap;
+            padding: 5px;
+        }
+
+        .nav-link {
+            padding: 8px 12px;
+            font-size: 12px;
+        }
+
+        .nav-brand {
+            padding: 12px 16px;
+            text-align: center;
+        }
+    }
+
+    .admin-content {
+        margin-left: 0;
+        padding: 15px;
+    }
+
+    .dashboard-cards {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+}

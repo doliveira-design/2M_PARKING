@@ -1,0 +1,96 @@
+<div class="admin-layout">
+    <nav class="admin-nav">
+        <div class="nav-brand">2M Parking <span class="nav-badge">Admin</span></div>
+        <div class="nav-links">
+            <a routerLink="/admin/dashboard" class="nav-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a routerLink="/admin/valets" class="nav-link"><i class="fas fa-users"></i> Usuários</a>
+            <a routerLink="/admin/listas" class="nav-link"><i class="fas fa-list"></i> Listas</a>
+            <a routerLink="/admin/tarifacao" class="nav-link active"><i class="fas fa-money-bill-alt"></i> Tarifação</a>
+            <a routerLink="/admin/relatorios" class="nav-link"><i class="fas fa-chart-bar"></i> Relatórios</a>
+            <a routerLink="/admin/alertas" class="nav-link"><i class="fas fa-bell"></i> Alertas</a>
+            <a routerLink="/admin/totems" class="nav-link"><i class="fas fa-desktop"></i> Totems</a>
+            <a routerLink="/admin/lpr" class="nav-link"><i class="fas fa-camera"></i> LPR</a>
+            <a routerLink="/admin/cancelas" class="nav-link"><i class="fas fa-road"></i> Cancelas</a>
+            <a routerLink="/valet/ticket" class="nav-link nav-separator"><i class="fas fa-ticket-alt"></i> Operações</a>
+            <a (click)="logout()" class="nav-link nav-logout"><i class="fas fa-sign-out-alt"></i> Sair</a>
+        </div>
+    </nav>
+
+    <main class="admin-content">
+        <div class="admin-header">
+            <h2 class="admin-title">Configuração de Tarifação</h2>
+            <button class="btn-action" [ngClass]="editing ? 'btn-gray' : 'btn-blue'" (click)="toggleEdit()">
+                <i class="fas" [class.fa-pencil-alt]="!editing" [class.fa-times]="editing"></i>
+                {{ editing ? 'Cancelar' : 'Editar' }}
+            </button>
+        </div>
+
+        <div class="pricing-card" *ngIf="pricing">
+            <!-- Visualização -->
+            <div class="pricing-grid" *ngIf="!editing">
+                <div class="pricing-item">
+                    <div class="pricing-icon"><i class="far fa-clock"></i></div>
+                    <div class="pricing-info">
+                        <span class="pricing-value">R$ {{ pricing.price_per_hour.toFixed(2) }}</span>
+                        <span class="pricing-label">Por Hora</span>
+                    </div>
+                </div>
+
+                <div class="pricing-item">
+                    <div class="pricing-icon"><i class="fas fa-calendar-alt"></i></div>
+                    <div class="pricing-info">
+                        <span class="pricing-value">R$ {{ pricing.max_daily.toFixed(2) }}</span>
+                        <span class="pricing-label">Máximo Diário</span>
+                    </div>
+                </div>
+
+                <div class="pricing-item">
+                    <div class="pricing-icon"><i class="fas fa-hourglass-half"></i></div>
+                    <div class="pricing-info">
+                        <span class="pricing-value">{{ pricing.tolerance_minutes }} min</span>
+                        <span class="pricing-label">Tolerância</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edição -->
+            <div class="pricing-edit" *ngIf="editing">
+                <div class="edit-field">
+                    <label>Preço por Hora (R$)</label>
+                    <input type="number" [(ngModel)]="editData.price_per_hour" min="0.01" step="0.50" />
+                </div>
+
+                <div class="edit-field">
+                    <label>Máximo Diário (R$)</label>
+                    <input type="number" [(ngModel)]="editData.max_daily" min="0.01" step="1" />
+                </div>
+
+                <div class="edit-field">
+                    <label>Tolerância (minutos)</label>
+                    <input type="number" [(ngModel)]="editData.tolerance_minutes" min="0" step="5" />
+                </div>
+
+                <button class="btn-action btn-green" (click)="savePricing()">
+                    <i class="fas fa-check"></i> Salvar Alterações
+                </button>
+            </div>
+
+            <div class="pricing-footer" *ngIf="!editing">
+                <span class="pricing-name">Plano: {{ pricing.name }}</span>
+                <span class="pricing-note">
+                    <i class="fas fa-info-circle"></i>
+                    O valor é calculado automaticamente com base no tempo de permanência.
+                    Veículos na whitelist são isentos.
+                </span>
+            </div>
+        </div>
+
+        <div class="pricing-empty" *ngIf="!pricing">
+            <i class="fas fa-exclamation-triangle"></i>
+            Nenhuma configuração de tarifação encontrada.
+        </div>
+    </main>
+</div>
+
+<ngx-spinner type="ball-spin-clockwise" size="medium"></ngx-spinner>
+<app-notifier></app-notifier>

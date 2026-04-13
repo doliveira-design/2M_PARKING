@@ -1,0 +1,55 @@
+# ============================================
+# 2M Parking — Docker Compose (Desenvolvimento)
+# Uso: docker-compose up --build
+# ============================================
+version: "3.8"
+
+services:
+  # SQL Server (dev local — substitui MSSQL17.SQLEXPRESS)
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: 2mparking-db
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "MParking@2026!"
+      MSSQL_PID: "Express"
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql-data:/var/opt/mssql
+    healthcheck:
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "MParking@2026!" -C -Q "SELECT 1" -b
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Aplicação (Nginx + Node.js backend)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: 2mparking-app
+    ports:
+      - "80:80"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DB_SERVER: db
+      DB_PORT: 1433
+      DB_NAME: MParking
+      DB_USER: sa
+      DB_PASSWORD: "MParking@2026!"
+      DB_ENCRYPT: "false"
+      JWT_SECRET: "2m-parking-docker-dev-secret-2026"
+      SETUP_KEY: "2m-parking-docker-dev-setup-2026"
+      CORS_ORIGINS: "http://localhost,http://localhost:80"
+      LOG_LEVEL: INFO
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  mssql-data:
+    driver: local

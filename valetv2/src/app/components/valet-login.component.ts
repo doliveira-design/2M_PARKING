@@ -27,6 +27,7 @@ export class ValetLoginComponent implements OnInit, OnDestroy {
     };
 
     loginPressed = false;
+    submitting = false;
 
     constructor(private auth: AuthService,
         private tokenUtil: TokenUtilService,
@@ -38,25 +39,45 @@ export class ValetLoginComponent implements OnInit, OnDestroy {
     ngOnDestroy(): void { }
 
     login(form) {
+        if (this.submitting) { return; }
         this.spinner.show();
 
         this.loginPressed = true;
+        this.submitting = true;
         const status = form.status;
         if (status === 'valid'.toUpperCase() ) {
             this.auth.loginValet(form.value.uname, form.value.pwd)
                 .subscribe((response: AuthResponse) => {
                     if (response.auth) {
                         this.tokenUtil.setToken(response.token, 'token_v');
+                        this.submitting = false;
                         this.spinner.hide();
-                        this.notifier.addMessage(
-                            'success',
-                            'Login Realizado',
-                            'Login realizado com sucesso no painel do manobrista'
-                        );
-                        this.router.navigateByUrl(`valet/ticket`,
-                            { skipLocationChange: false });
+
+                        // Decode JWT to check role
+                        const payload = JSON.parse(atob(response.token.split('.')[1]));
+
+                        if (payload.role === 'admin') {
+                            this.notifier.addMessage(
+                                'success',
+                                'Login Realizado',
+                                'Bem-vindo ao painel administrativo'
+                            );
+                            this.router.navigateByUrl('admin/dashboard',
+                                { skipLocationChange: false });
+                        } else {
+                            this.notifier.addMessage(
+                                'success',
+                                'Login Realizado',
+                                'Login realizado com sucesso no painel do manobrista'
+                            );
+                            this.router.navigateByUrl('valet/ticket',
+                                { skipLocationChange: false });
+                        }
                     }
                 });
+        } else {
+            this.submitting = false;
+            this.spinner.hide();
         }
     }
 

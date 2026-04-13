@@ -12,6 +12,7 @@ export class ErrorHandlerService {
   statusCode = {
     400: 'badRequest',
     401: 'unauthorized',
+    403: 'forbidden',
     404: 'notFound',
     500: 'internalServer'
   };
@@ -19,6 +20,7 @@ export class ErrorHandlerService {
   errorMessages = {
     400: 'Os dados fornecidos resultaram em uma requisição inválida. Tente novamente com dados válidos.',
     401: 'Você não está autorizado a acessar esta página. Faça login para continuar.',
+    403: 'Veículo bloqueado. Entrada não permitida.',
     404: `O recurso solicitado não existe no servidor.
           Verifique os dados informados e tente novamente ou entre em contato com o suporte técnico.`,
     500: 'Houve um problema ao processar sua solicitação. Tente novamente.'
@@ -31,7 +33,8 @@ export class ErrorHandlerService {
   handleError(err) {
     this.spinner.hide();
     const code: number = err.status || 500;
-    this.notifier.addMessage('error', 'Erro', this.errorMessages[code]);
+    const msg = err.message || this.errorMessages[code] || this.errorMessages[500];
+    this.notifier.addMessage('error', 'Erro', msg);
     switch (code) {
       case 401:
         this.router.navigateByUrl(`/unauthorized`,

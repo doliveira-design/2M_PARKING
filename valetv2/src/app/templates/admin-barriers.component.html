@@ -1,0 +1,170 @@
+<div class="admin-layout">
+    <nav class="admin-nav">
+        <div class="nav-brand">2M Parking <span class="nav-badge">Admin</span></div>
+        <div class="nav-links">
+            <a routerLink="/admin/dashboard" class="nav-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a routerLink="/admin/valets" class="nav-link"><i class="fas fa-users"></i> Usuários</a>
+            <a routerLink="/admin/listas" class="nav-link"><i class="fas fa-list"></i> Listas</a>
+            <a routerLink="/admin/tarifacao" class="nav-link"><i class="fas fa-money-bill-alt"></i> Tarifação</a>
+            <a routerLink="/admin/relatorios" class="nav-link"><i class="fas fa-chart-bar"></i> Relatórios</a>
+            <a routerLink="/admin/alertas" class="nav-link"><i class="fas fa-bell"></i> Alertas</a>
+            <a routerLink="/admin/totems" class="nav-link"><i class="fas fa-desktop"></i> Totems</a>
+            <a routerLink="/admin/lpr" class="nav-link"><i class="fas fa-camera"></i> LPR</a>
+            <a routerLink="/admin/cancelas" class="nav-link active"><i class="fas fa-road"></i> Cancelas</a>
+            <a routerLink="/valet/ticket" class="nav-link nav-separator"><i class="fas fa-ticket-alt"></i> Operações</a>
+            <a (click)="logout()" class="nav-link nav-logout"><i class="fas fa-sign-out-alt"></i> Sair</a>
+        </div>
+    </nav>
+
+    <main class="admin-content">
+        <div class="admin-header">
+            <h2 class="admin-title">Controle de Cancelas</h2>
+            <div class="tab-buttons">
+                <button class="btn-tab" [class.active]="activeTab === 'devices'" (click)="switchTab('devices')">
+                    <i class="fas fa-road"></i> Dispositivos
+                </button>
+                <button class="btn-tab" [class.active]="activeTab === 'events'" (click)="switchTab('events')">
+                    <i class="fas fa-history"></i> Eventos
+                </button>
+            </div>
+        </div>
+
+        <!-- DEVICES TAB -->
+        <div *ngIf="activeTab === 'devices'">
+            <div class="admin-header">
+                <span></span>
+                <button class="btn-action btn-blue" (click)="toggleForm()">
+                    <i class="fa" [class.fa-plus]="!showForm" [class.fa-times]="showForm"></i>
+                    {{ showForm ? 'Cancelar' : 'Nova Cancela' }}
+                </button>
+            </div>
+
+            <div class="create-form" *ngIf="showForm">
+                <div class="form-row">
+                    <div class="form-field">
+                        <label>Nome</label>
+                        <input type="text" [(ngModel)]="newDevice.name" placeholder="Ex: Cancela Entrada Norte" />
+                    </div>
+                    <div class="form-field">
+                        <label>Tipo</label>
+                        <select [(ngModel)]="newDevice.type">
+                            <option value="entry">Entrada</option>
+                            <option value="exit">Saída</option>
+                        </select>
+                    </div>
+                    <div class="form-field">
+                        <label>URL de Controle</label>
+                        <input type="text" [(ngModel)]="newDevice.control_url" placeholder="http://192.168.1.50:8080 (opcional)" />
+                    </div>
+                    <div class="form-field form-action">
+                        <button class="btn-action btn-green" (click)="createDevice()">
+                            <i class="fas fa-check"></i> Criar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-table-wrapper">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>Tipo</th>
+                            <th>URL</th>
+                            <th>Status</th>
+                            <th>Último Contato</th>
+                            <th>Controle</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let d of devices">
+                            <td>{{ d.id }}</td>
+                            <td><strong>{{ d.name }}</strong></td>
+                            <td>
+                                <span class="type-badge" [ngClass]="getTypeBadgeClass(d.type)">
+                                    {{ d.type === 'entry' ? 'Entrada' : 'Saída' }}
+                                </span>
+                            </td>
+                            <td><code>{{ d.control_url || 'Simulado' }}</code></td>
+                            <td>
+                                <span class="status-badge" [ngClass]="getStatusClass(d)">
+                                    {{ getStatusLabel(d) }}
+                                </span>
+                            </td>
+                            <td>{{ d.last_heartbeat ? (d.last_heartbeat | date:'dd/MM/yyyy HH:mm') : '—' }}</td>
+                            <td class="actions-cell">
+                                <button class="btn-small btn-green" (click)="openBarrier(d)" [disabled]="!d.is_active"
+                                    title="Abrir cancela">
+                                    <i class="fas fa-lock-open"></i>
+                                </button>
+                                <button class="btn-small btn-warning" (click)="closeBarrier(d)" [disabled]="!d.is_active"
+                                    title="Fechar cancela">
+                                    <i class="fas fa-lock"></i>
+                                </button>
+                            </td>
+                            <td class="actions-cell">
+                                <button class="btn-small" [ngClass]="d.is_active ? 'btn-warning' : 'btn-green'"
+                                    (click)="toggleActive(d)">
+                                    <i class="fas" [class.fa-pause]="d.is_active" [class.fa-play]="!d.is_active"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr *ngIf="devices.length === 0">
+                            <td colspan="8" class="empty-row">Nenhuma cancela cadastrada.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- EVENTS TAB -->
+        <div *ngIf="activeTab === 'events'">
+            <div class="filter-bar">
+                <div class="filter-field">
+                    <label>Cancela</label>
+                    <select [(ngModel)]="filterBarrierId" (change)="loadEvents()">
+                        <option value="">Todas</option>
+                        <option *ngFor="let d of devices" [value]="d.id">{{ d.name }}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="admin-table-wrapper">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Cancela</th>
+                            <th>Ação</th>
+                            <th>Disparado por</th>
+                            <th>Ticket</th>
+                            <th>Data</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let e of events">
+                            <td>{{ e.id }}</td>
+                            <td>{{ e.barrier_name || e.barrier_id }}</td>
+                            <td>
+                                <span class="action-badge" [ngClass]="getActionBadgeClass(e.action)">
+                                    {{ e.action }}
+                                </span>
+                            </td>
+                            <td>{{ getTriggerLabel(e.triggered_by) }}</td>
+                            <td>{{ e.ticket_no || '—' }}</td>
+                            <td>{{ e.created_at | date:'dd/MM/yyyy HH:mm:ss' }}</td>
+                        </tr>
+                        <tr *ngIf="events.length === 0">
+                            <td colspan="6" class="empty-row">Nenhum evento registrado.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<ngx-spinner type="ball-spin-clockwise" size="medium"></ngx-spinner>
+<app-notifier></app-notifier>

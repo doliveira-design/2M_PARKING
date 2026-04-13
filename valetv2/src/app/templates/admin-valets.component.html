@@ -1,0 +1,120 @@
+<div class="admin-layout">
+    <nav class="admin-nav">
+        <div class="nav-brand">2M Parking <span class="nav-badge">Admin</span></div>
+        <div class="nav-links">
+            <a routerLink="/admin/dashboard" class="nav-link">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            <a routerLink="/admin/valets" class="nav-link active">
+                <i class="fas fa-users"></i> Usuários
+            </a>
+            <a routerLink="/admin/listas" class="nav-link">
+                <i class="fas fa-list"></i> Listas
+            </a>
+            <a routerLink="/admin/tarifacao" class="nav-link">
+                <i class="fas fa-money-bill-alt"></i> Tarifação
+            </a>
+            <a routerLink="/admin/relatorios" class="nav-link">
+                <i class="fas fa-chart-bar"></i> Relatórios
+            </a>
+            <a routerLink="/admin/alertas" class="nav-link">
+                <i class="fas fa-bell"></i> Alertas
+            </a>
+            <a routerLink="/admin/totems" class="nav-link">
+                <i class="fas fa-desktop"></i> Totems
+            </a>
+            <a routerLink="/admin/lpr" class="nav-link">
+                <i class="fas fa-camera"></i> LPR
+            </a>
+            <a routerLink="/admin/cancelas" class="nav-link">
+                <i class="fas fa-road"></i> Cancelas
+            </a>
+            <a routerLink="/valet/ticket" class="nav-link nav-separator">
+                <i class="fas fa-ticket-alt"></i> Operações
+            </a>
+            <a (click)="logout()" class="nav-link nav-logout">
+                <i class="fas fa-sign-out-alt"></i> Sair
+            </a>
+        </div>
+    </nav>
+
+    <main class="admin-content">
+        <div class="admin-header">
+            <h2 class="admin-title">Gestão de Usuários</h2>
+            <button class="btn-action btn-blue" (click)="toggleForm()">
+                <i class="fa" [class.fa-plus]="!showForm" [class.fa-times]="showForm"></i>
+                {{ showForm ? 'Cancelar' : 'Novo Usuário' }}
+            </button>
+        </div>
+
+        <div class="create-form" *ngIf="showForm">
+            <div class="form-row">
+                <div class="form-field">
+                    <label>Usuário</label>
+                    <input type="text" [(ngModel)]="newValet.uname" placeholder="Nome de usuário" />
+                </div>
+                <div class="form-field">
+                    <label>Senha</label>
+                    <input type="password" [(ngModel)]="newValet.pwd" placeholder="Senha" />
+                </div>
+                <div class="form-field">
+                    <label>Perfil</label>
+                    <select [(ngModel)]="newValet.role">
+                        <option value="operador">Operador</option>
+                        <option value="fiscal">Fiscal</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <div class="form-field form-action">
+                    <button class="btn-action btn-green" (click)="createValet()">
+                        <i class="fas fa-check"></i> Criar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Usuário</th>
+                        <th>Perfil</th>
+                        <th>Criado em</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let v of valets">
+                        <td>{{ v.id }}</td>
+                        <td><strong>{{ v.uname }}</strong></td>
+                        <td>
+                            <span class="role-badge" [ngClass]="getRoleBadgeClass(v.role)">
+                                {{ v.role }}
+                            </span>
+                        </td>
+                        <td>{{ v.created_at | date:'dd/MM/yyyy HH:mm' }}</td>
+                        <td>
+                            <button class="btn-small btn-danger"
+                                *ngIf="confirmDeleteId !== v.id"
+                                (click)="confirmDelete(v.id)">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                            <span *ngIf="confirmDeleteId === v.id" class="confirm-group">
+                                <span class="confirm-text">Confirmar?</span>
+                                <button class="btn-small btn-danger" (click)="deleteValet(v.id)">Sim</button>
+                                <button class="btn-small btn-gray" (click)="cancelDelete()">Não</button>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr *ngIf="valets.length === 0">
+                        <td colspan="5" class="empty-row">Nenhum usuário encontrado.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+
+<ngx-spinner type="ball-spin-clockwise" size="medium"></ngx-spinner>
+<app-notifier></app-notifier>

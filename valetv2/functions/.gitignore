@@ -1,1 +1,14 @@
 node_modules/
+.env
+.env.*
+!.env.example
+logs/
+*.log
+index.backup.js
+_*.js
+test-*.js
+check-*.js
+fix-*.js
+migrate-pwd.js
+monitor.js
+scripts/archive/

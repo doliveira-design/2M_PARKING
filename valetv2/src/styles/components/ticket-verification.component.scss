@@ -119,6 +119,142 @@
     }
 }
 
+.btn-pay {
+    background: #2c5cd5 !important;
+    color: #fff !important;
+    border: none !important;
+    margin-top: 10px;
+    width: 100%;
+    font-weight: bold;
+    font-size: 15px;
+    padding: 12px;
+
+    &:hover {
+        background: #1e45a6 !important;
+    }
+
+    i {
+        margin-right: 8px;
+    }
+}
+
+.payment-form {
+    margin-top: 15px;
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.payment-form-title {
+    font-weight: bold;
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 15px;
+
+    i {
+        color: #2c5cd5;
+        margin-right: 8px;
+    }
+}
+
+.payment-methods {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.method-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 15px 10px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: #fff;
+
+    input[type="radio"] {
+        display: none;
+    }
+
+    i {
+        font-size: 24px;
+        margin-bottom: 8px;
+        color: #999;
+    }
+
+    span {
+        font-size: 13px;
+        font-weight: bold;
+        color: #666;
+    }
+
+    &:hover {
+        border-color: #2c5cd5;
+    }
+
+    &.selected {
+        border-color: #2c5cd5;
+        background: #eef3ff;
+
+        i {
+            color: #2c5cd5;
+        }
+
+        span {
+            color: #2c5cd5;
+        }
+    }
+}
+
+.payment-confirm-area {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-confirm {
+    flex: 2;
+    background: #77d89c !important;
+    color: #fff !important;
+    border: none !important;
+    font-weight: bold;
+    padding: 12px;
+
+    &:hover {
+        background: #5cc282 !important;
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    i {
+        margin-right: 5px;
+    }
+}
+
+.btn-cancel {
+    flex: 1;
+    background: #e7163a !important;
+    color: #fff !important;
+    border: none !important;
+    font-weight: bold;
+    padding: 12px;
+
+    &:hover {
+        background: #c21030 !important;
+    }
+
+    i {
+        margin-right: 5px;
+    }
+}
+
 .success-text {
     color: #2c8c51;
     font-weight: bold;
@@ -146,5 +282,107 @@
         background: #5cc282;
         border: 1px solid #5cc282;
         transition: 0.5s all;
+    }
+}
+
+.btn-exit {
+    background: #2c5cd5 !important;
+    color: #fff !important;
+    border: none !important;
+    margin-top: 10px;
+    width: 100%;
+    font-weight: bold;
+    font-size: 15px;
+    padding: 12px;
+
+    &:hover {
+        background: #1e45a6 !important;
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    i {
+        margin-right: 8px;
+    }
+}
+
+.receipt-card {
+    margin-top: 15px;
+    background: #f0fff5;
+    border: 2px solid #77d89c;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.receipt-header {
+    text-align: center;
+    font-size: 20px;
+    font-weight: 900;
+    color: #2c8c51;
+    margin-bottom: 15px;
+
+    i {
+        margin-right: 8px;
+        font-size: 24px;
+    }
+}
+
+.receipt-info {
+    padding: 10px 0;
+}
+
+.btn-print-receipt {
+    background: #2c5cd5 !important;
+    color: #fff !important;
+    border: none !important;
+    width: 100%;
+    font-weight: bold;
+    padding: 12px;
+    margin-top: 10px;
+
+    &:hover {
+        background: #1e45a6 !important;
+    }
+
+    i {
+        margin-right: 8px;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 10px 5px;
+    }
+
+    .payment-methods {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    .payment-confirm-area {
+        flex-direction: column;
+    }
+
+    .plate-input {
+        font-size: 16px !important;
+        letter-spacing: 2px;
+    }
+}
+
+@media (max-width: 480px) {
+    .status-badge {
+        font-size: 14px;
+        padding: 6px 12px;
+    }
+
+    .result-value {
+        font-size: 13px;
+    }
+
+    .plate-value {
+        font-size: 15px;
     }
 }

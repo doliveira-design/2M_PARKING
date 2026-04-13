@@ -99,6 +99,96 @@ p {
 }
 
 .btn-blue {
+    background: $default-blue;
+    color: $btn-blue-text;
+
+    &:hover, &:focus, &:active {
+        background: $button-blue-hover;
+        box-shadow: 0px 2px 4px $button-hover-shadow;
+        transition: 0.3s all;
+    }
+}
+
+.valet-nav {
+    display: flex;
+    align-items: center;
+    background: $charcoal-black;
+    padding: 0;
+
+    .nav-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 14px 20px;
+        color: #bbb;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: background 0.2s, color 0.2s;
+
+        &:hover {
+            background: #333;
+            color: #fff;
+        }
+
+        &.active {
+            background: $default-blue;
+            color: #fff;
+        }
+    }
+
+    .nav-admin {
+        margin-left: auto;
+        color: #7495e8;
+        &:hover { color: #fff; }
+    }
+
+    .nav-logout {
+        color: $danger-red;
+        &:hover { background: rgba($danger-red, 0.15); color: lighten($danger-red, 10%); }
+    }
+}
+
+/* ===== RESPONSIVE ===== */
+
+@media (max-width: 768px) {
+    .valet-nav {
+        flex-wrap: wrap;
+
+        .nav-link {
+            padding: 10px 12px;
+            font-size: 12px;
+        }
+
+        .nav-admin {
+            margin-left: 0;
+        }
+    }
+
+    .form-container {
+        padding: 10px 5px;
+    }
+
+    .form-btn {
+        font-size: 14px;
+        padding: 12px 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 18px;
+    }
+
+    .form-item input {
+        font-size: 14px;
+    }
+}
+
+.btn-blue {
     color: $btn-blue-text;
     background: $default-blue;
     border: 1px solid $default-blue;

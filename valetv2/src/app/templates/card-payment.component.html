@@ -1,0 +1,170 @@
+<div class="card-container">
+    <button class="btn-back" (click)="goBack()">
+        <i class="fas fa-arrow-left"></i> Voltar
+    </button>
+
+    <div class="card-header">
+        <i class="fas fa-credit-card card-icon"></i>
+        <h2>Pagamento com Cartão</h2>
+    </div>
+
+    <!-- Loading -->
+    <div class="card-loading" *ngIf="status === 'loading'">
+        <i class="fas fa-spinner fa-spin"></i>
+        <p>Carregando...</p>
+    </div>
+
+    <!-- Amount display -->
+    <div class="card-amount-card" *ngIf="status === 'form' && amount > 0">
+        <span class="amount-label">Valor a Pagar</span>
+        <span class="amount-value">R$ {{ amount | number:'1.2-2' }}</span>
+    </div>
+
+    <!-- Mock Form (when MP SDK not available) -->
+    <div class="card-form-area" *ngIf="status === 'form' && useMockForm">
+        <div class="mock-notice">
+            <i class="fas fa-shield-alt"></i>
+            <span>Pagamento seguro</span>
+        </div>
+
+        <div class="form-group">
+            <label>Número do Cartão</label>
+            <input type="text"
+                [ngModel]="cardNumber"
+                (input)="formatCardNumber($event)"
+                placeholder="0000 0000 0000 0000"
+                maxlength="19"
+                autocomplete="off"
+                class="card-input">
+        </div>
+
+        <div class="form-group">
+            <label>Nome no Cartão</label>
+            <input type="text"
+                [(ngModel)]="cardHolder"
+                placeholder="NOME COMO NO CARTÃO"
+                autocomplete="off"
+                class="card-input"
+                style="text-transform: uppercase;">
+        </div>
+
+        <div class="form-row">
+            <div class="form-group half">
+                <label>Validade</label>
+                <input type="text"
+                    [ngModel]="cardExpiry"
+                    (input)="formatExpiry($event)"
+                    placeholder="MM/AA"
+                    maxlength="5"
+                    autocomplete="off"
+                    class="card-input">
+            </div>
+            <div class="form-group half">
+                <label>CVV</label>
+                <input type="text"
+                    [ngModel]="cardCvv"
+                    (input)="formatCvv($event)"
+                    placeholder="000"
+                    maxlength="4"
+                    autocomplete="off"
+                    class="card-input">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Parcelas</label>
+            <select [(ngModel)]="installments" class="card-input">
+                <option [ngValue]="1">1x de R$ {{ amount | number:'1.2-2' }} (à vista)</option>
+                <option *ngIf="amount >= 20" [ngValue]="2">2x de R$ {{ amount / 2 | number:'1.2-2' }}</option>
+                <option *ngIf="amount >= 30" [ngValue]="3">3x de R$ {{ amount / 3 | number:'1.2-2' }}</option>
+            </select>
+        </div>
+
+        <button class="form-btn btn-blue" (click)="submitMockForm()">
+            <i class="fas fa-lock"></i> Pagar R$ {{ amount | number:'1.2-2' }}
+        </button>
+    </div>
+
+    <!-- Mercado Pago SDK Form -->
+    <div class="card-form-area" *ngIf="status === 'form' && !useMockForm">
+        <form id="mp-card-form">
+            <div class="form-group">
+                <label>Número do Cartão</label>
+                <div id="mp-card-number" class="mp-field"></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group half">
+                    <label>Validade</label>
+                    <div id="mp-expiration-date" class="mp-field"></div>
+                </div>
+                <div class="form-group half">
+                    <label>CVV</label>
+                    <div id="mp-security-code" class="mp-field"></div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Nome no Cartão</label>
+                <div id="mp-cardholder-name" class="mp-field"></div>
+            </div>
+            <div class="form-group">
+                <label>Parcelas</label>
+                <select id="mp-installments" class="card-input"></select>
+            </div>
+            <button type="submit" class="form-btn btn-blue">
+                <i class="fas fa-lock"></i> Pagar R$ {{ amount | number:'1.2-2' }}
+            </button>
+        </form>
+    </div>
+
+    <!-- Processing -->
+    <div class="card-processing" *ngIf="status === 'processing'">
+        <i class="fas fa-spinner fa-spin"></i>
+        <p>Processando pagamento...</p>
+        <p class="processing-sub">Não feche esta página</p>
+    </div>
+
+    <!-- Success -->
+    <div class="card-success" *ngIf="status === 'success'">
+        <div class="success-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h3>Pagamento Aprovado!</h3>
+        <div class="receipt-info">
+            <div class="receipt-row">
+                <span class="receipt-label">Valor</span>
+                <span class="receipt-value">R$ {{ amount | number:'1.2-2' }}</span>
+            </div>
+            <div class="receipt-row" *ngIf="cardBrand">
+                <span class="receipt-label">Bandeira</span>
+                <span class="receipt-value">{{ cardBrand | titlecase }}</span>
+            </div>
+            <div class="receipt-row" *ngIf="cardLast4">
+                <span class="receipt-label">Cartão</span>
+                <span class="receipt-value">**** {{ cardLast4 }}</span>
+            </div>
+            <div class="receipt-row" *ngIf="authCode">
+                <span class="receipt-label">Autorização</span>
+                <span class="receipt-value">{{ authCode }}</span>
+            </div>
+        </div>
+        <p class="success-msg">Apresente o QR Code do ticket ao manobrista para retirar seu veículo.</p>
+        <button class="form-btn btn-green" (click)="goToTicket()">
+            <i class="fas fa-car"></i> Ver Meu Ticket
+        </button>
+    </div>
+
+    <!-- Error -->
+    <div class="card-error" *ngIf="status === 'error'">
+        <div class="error-icon">
+            <i class="fas fa-times-circle"></i>
+        </div>
+        <h3>Pagamento Recusado</h3>
+        <p>{{ errorMessage }}</p>
+        <button class="form-btn btn-blue" (click)="retryPayment()">
+            <i class="fas fa-redo"></i> Tentar Novamente
+        </button>
+        <button class="form-btn btn-gray" (click)="goBack()">
+            <i class="fas fa-arrow-left"></i> Voltar
+        </button>
+    </div>
+</div>

@@ -1,0 +1,101 @@
+<div class="pix-container">
+    <button class="btn-back" (click)="goBack()">
+        <i class="fas fa-arrow-left"></i> Voltar
+    </button>
+
+    <div class="pix-header">
+        <i class="fas fa-qrcode pix-icon"></i>
+        <h2>Pagamento via PIX</h2>
+    </div>
+
+    <!-- Loading -->
+    <div class="pix-loading" *ngIf="status === 'loading'">
+        <i class="fas fa-spinner fa-spin"></i>
+        <p>Gerando QR Code PIX...</p>
+    </div>
+
+    <!-- QR Code Pendente -->
+    <div class="pix-content" *ngIf="status === 'pending'">
+        <div class="pix-amount-card">
+            <span class="amount-label">Valor a Pagar</span>
+            <span class="amount-value">R$ {{ amount | number:'1.2-2' }}</span>
+        </div>
+
+        <div class="pix-qr-area">
+            <div class="qr-image-container">
+                <img *ngIf="qrCodeBase64" [src]="'data:image/png;base64,' + qrCodeBase64" alt="QR Code PIX" class="qr-image">
+                <div *ngIf="!qrCodeBase64" class="qr-placeholder">
+                    <i class="fas fa-qrcode"></i>
+                </div>
+            </div>
+
+            <div class="qr-timer">
+                <i class="fas fa-clock"></i>
+                <span>Expira em <strong>{{ countdown }}</strong></span>
+            </div>
+        </div>
+
+        <div class="pix-copy-area">
+            <p class="copy-label">Ou copie o código PIX:</p>
+            <div class="copy-field">
+                <input type="text" [value]="qrCode" readonly class="copy-input">
+                <button class="btn-copy" (click)="copyPixCode()" [ngClass]="{'copied': copied}">
+                    <i class="fas" [ngClass]="copied ? 'fa-check' : 'fa-copy'"></i>
+                    {{ copied ? 'Copiado!' : 'Copiar' }}
+                </button>
+            </div>
+        </div>
+
+        <div class="pix-instructions">
+            <p><i class="fas fa-info-circle"></i> Abra o app do seu banco, escolha pagar com PIX e escaneie o QR Code ou cole o código acima.</p>
+        </div>
+
+        <div class="pix-polling-indicator">
+            <span class="pulse-dot"></span>
+            Aguardando confirmação do pagamento...
+        </div>
+    </div>
+
+    <!-- Aprovado -->
+    <div class="pix-success" *ngIf="status === 'approved'">
+        <div class="success-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h3>Pagamento Confirmado!</h3>
+        <p class="success-amount">R$ {{ amount | number:'1.2-2' }}</p>
+        <p class="success-msg">Seu pagamento via PIX foi aprovado. Apresente o QR Code do ticket ao manobrista para retirar seu veículo.</p>
+        <button class="form-btn btn-green" (click)="goToTicket()">
+            <i class="fas fa-car"></i> Ver Meu Ticket
+        </button>
+    </div>
+
+    <!-- Expirado -->
+    <div class="pix-expired" *ngIf="status === 'expired'">
+        <div class="expired-icon">
+            <i class="fas fa-clock"></i>
+        </div>
+        <h3>QR Code Expirado</h3>
+        <p>O tempo para pagamento expirou. Gere um novo QR Code para continuar.</p>
+        <button class="form-btn btn-blue" (click)="regenerate()">
+            <i class="fas fa-redo"></i> Gerar Novo QR Code
+        </button>
+        <button class="form-btn btn-gray" (click)="goBack()">
+            <i class="fas fa-arrow-left"></i> Voltar
+        </button>
+    </div>
+
+    <!-- Erro -->
+    <div class="pix-error" *ngIf="status === 'error'">
+        <div class="error-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3>Erro</h3>
+        <p>{{ errorMessage }}</p>
+        <button class="form-btn btn-blue" (click)="regenerate()">
+            <i class="fas fa-redo"></i> Tentar Novamente
+        </button>
+        <button class="form-btn btn-gray" (click)="goBack()">
+            <i class="fas fa-arrow-left"></i> Voltar
+        </button>
+    </div>
+</div>

@@ -1,11 +1,5 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-
-import { DataService } from '../services/data.service';
-import { TokenUtilService } from '../services/token-util.service';
-import { NotifierService } from '../services/notifier.service';
-
-import { switchMap } from 'rxjs/operators';
+import { Component, OnInit, OnDestroy, Input } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-payment',
@@ -15,42 +9,24 @@ import { switchMap } from 'rxjs/operators';
 
 export class PaymentComponent implements OnInit, OnDestroy {
 
-    paymentDetails;
+    @Input() amount: number = 0;
+    @Input() ticketNo: string = '';
 
-    constructor(private route: ActivatedRoute,
-        private router: Router,
-        private data: DataService,
-        private notifier: NotifierService,
-        private tokenUtil: TokenUtilService) { }
+    selectedMethod: string = '';
+
+    constructor(private router: Router) { }
 
     ngOnDestroy(): void {
     }
     ngOnInit(): void {
-        this.paymentDetails = {
-            no: '',
-            cvv: '',
-            expiry: ''
-        };
     }
 
-    callPaymentApi(form) {
-        let ticket_no = null;
-        this.route.params
-            .pipe(
-                switchMap((param: any) => {
-                    ticket_no = param.ticket_no;
-                    return this.data.updatePaymentStatus(ticket_no, this.tokenUtil.getToken());
-                })
-            )
-            .subscribe((response) => {
-                this.notifier.addMessage(
-                    'success',
-                    'Ticket Pago',
-                    'Pagamento do ticket realizado com sucesso'
-                );
-                form.reset();
-                this.router.navigateByUrl(`validate/${ticket_no}`, { skipLocationChange: false });
-            });
+    selectMethod(method: string) {
+        this.selectedMethod = method;
+        if (method === 'pix') {
+            this.router.navigateByUrl(`/user/${this.ticketNo}/pix`);
+        } else if (method === 'cartao') {
+            this.router.navigateByUrl(`/user/${this.ticketNo}/card`);
+        }
     }
-
 }

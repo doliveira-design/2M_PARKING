@@ -33,6 +33,15 @@ npm-debug.log
 yarn-error.log
 testem.log
 /typings
+*.log
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Build output
+/dist
 
 # System Files
 .DS_Store

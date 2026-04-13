@@ -34,6 +34,12 @@
             {{ user.ticket.amount | currency }}
         </span>
     </div>
+
+    <div class="qr-section" *ngIf="ticket_no">
+        <qrcode [qrdata]="qrData" [size]="180" [level]="'M'"></qrcode>
+        <p class="qr-label">Apresente este QR Code ao manobrista</p>
+    </div>
+
     <button class="form-btn btn-blue"
         (click)="performCta()">
         {{ buttonCtaText }}
@@ -41,5 +47,5 @@
 </div>
 
 <div *ngIf="showPayment">
-    <app-payment></app-payment>
+    <app-payment [amount]="user.ticket.amount" [ticketNo]="user.ticket.no"></app-payment>
 </div>

@@ -1,0 +1,113 @@
+<div class="admin-layout">
+    <nav class="admin-nav">
+        <div class="nav-brand">2M Parking <span class="nav-badge">Admin</span></div>
+        <div class="nav-links">
+            <a routerLink="/admin/dashboard" class="nav-link active">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            <a routerLink="/admin/valets" class="nav-link">
+                <i class="fas fa-users"></i> Usuários
+            </a>
+            <a routerLink="/admin/listas" class="nav-link">
+                <i class="fas fa-list"></i> Listas
+            </a>
+            <a routerLink="/admin/tarifacao" class="nav-link">
+                <i class="fas fa-money-bill-alt"></i> Tarifação
+            </a>
+            <a routerLink="/admin/relatorios" class="nav-link">
+                <i class="fas fa-chart-bar"></i> Relatórios
+            </a>
+            <a routerLink="/admin/alertas" class="nav-link">
+                <i class="fas fa-bell"></i> Alertas
+            </a>
+            <a routerLink="/admin/totems" class="nav-link">
+                <i class="fas fa-desktop"></i> Totems
+            </a>
+            <a routerLink="/admin/lpr" class="nav-link">
+                <i class="fas fa-camera"></i> LPR
+            </a>
+            <a routerLink="/admin/cancelas" class="nav-link">
+                <i class="fas fa-road"></i> Cancelas
+            </a>
+            <a routerLink="/valet/ticket" class="nav-link nav-separator">
+                <i class="fas fa-ticket-alt"></i> Operações
+            </a>
+            <a (click)="logout()" class="nav-link nav-logout">
+                <i class="fas fa-sign-out-alt"></i> Sair
+            </a>
+        </div>
+    </nav>
+
+    <main class="admin-content">
+        <h2 class="admin-title">Dashboard</h2>
+
+        <div class="dashboard-cards" *ngIf="!loading">
+            <div class="dash-card card-blue">
+                <div class="card-icon"><i class="fas fa-car"></i></div>
+                <div class="card-info">
+                    <span class="card-value">{{ occupancy ? occupancy.current_count : 0 }}</span>
+                    <span class="card-label">Veículos no Pátio</span>
+                </div>
+            </div>
+
+            <div class="dash-card card-green">
+                <div class="card-icon"><i class="fas fa-percent"></i></div>
+                <div class="card-info">
+                    <span class="card-value">{{ occupancy ? occupancy.occupancy_percent : 0 }}%</span>
+                    <span class="card-label">Ocupação</span>
+                </div>
+            </div>
+
+            <div class="dash-card card-orange">
+                <div class="card-icon"><i class="fas fa-ticket-alt"></i></div>
+                <div class="card-info">
+                    <span class="card-value">{{ summary ? summary.total_tickets : 0 }}</span>
+                    <span class="card-label">Tickets Hoje</span>
+                </div>
+            </div>
+
+            <div class="dash-card card-red">
+                <div class="card-icon"><i class="far fa-clock"></i></div>
+                <div class="card-info">
+                    <span class="card-value">{{ summary ? summary.total_pending : 0 }}</span>
+                    <span class="card-label">Pendentes</span>
+                </div>
+            </div>
+
+            <div class="dash-card card-purple">
+                <div class="card-icon"><i class="fas fa-money-bill-alt"></i></div>
+                <div class="card-info">
+                    <span class="card-value">R$ {{ summary ? summary.total_revenue.toFixed(2) : '0.00' }}</span>
+                    <span class="card-label">Receita Hoje</span>
+                </div>
+            </div>
+
+            <div class="dash-card card-teal">
+                <div class="card-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="card-info">
+                    <span class="card-value">{{ summary ? summary.total_paid : 0 }}</span>
+                    <span class="card-label">Pagos Hoje</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="occupancy-bar" *ngIf="occupancy">
+            <div class="bar-header">
+                <span>Capacidade: {{ occupancy.name }}</span>
+                <span>{{ occupancy.current_count }} / {{ occupancy.capacity }} vagas</span>
+            </div>
+            <div class="bar-track">
+                <div class="bar-fill" [style.width.%]="occupancy.occupancy_percent"
+                    [class.bar-warning]="occupancy.occupancy_percent >= 70"
+                    [class.bar-danger]="occupancy.occupancy_percent >= 90">
+                </div>
+            </div>
+            <div class="bar-footer">
+                <span>{{ occupancy.available }} vagas disponíveis</span>
+            </div>
+        </div>
+    </main>
+</div>
+
+<ngx-spinner type="ball-spin-clockwise" size="medium"></ngx-spinner>
+<app-notifier></app-notifier>

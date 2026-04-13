@@ -25,6 +25,7 @@ export class UserLoginComponent implements OnInit, OnDestroy {
         reg_no: null
     };
     subscription: Subscription;
+    private routeSub: Subscription;
     focus = {
         phone: false,
         regNo: false
@@ -42,13 +43,14 @@ export class UserLoginComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        this.route.params.subscribe((param) => {
+        this.routeSub = this.route.params.subscribe((param) => {
             this.userModel.ticket_no = param.ticket_no;
         });
     }
 
     ngOnDestroy(): void {
-        this.subscription.unsubscribe();
+        if (this.subscription) { this.subscription.unsubscribe(); }
+        if (this.routeSub) { this.routeSub.unsubscribe(); }
     }
 
     onPhoneInput(event) {

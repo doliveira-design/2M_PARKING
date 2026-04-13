@@ -1,13 +1,10 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { QRCodeModule } from 'angularx-qrcode';
 import { NgxSpinnerModule } from 'ngx-spinner';
-import { AngularFireModule } from '@angular/fire';
-import { AngularFirestoreModule } from '@angular/fire/firestore';
-import { AngularFireStorageModule } from '@angular/fire/storage';
-import { environment } from '../../environments/environment';
 
 import { AppComponent } from '../components/app.component';
 import { ValetLoginComponent } from '../components/valet-login.component';
@@ -19,6 +16,17 @@ import { TicketViewComponent } from '../components/ticket-view.component';
 import { NotifierComponent } from '../components/notifier.component';
 import { InvalidRouteComponent } from '../components/invalid-route.component';
 import { UnauthorizedComponent } from '../components/unauthorized.component';
+import { AdminDashboardComponent } from '../components/admin-dashboard.component';
+import { AdminValetsComponent } from '../components/admin-valets.component';
+import { AdminListsComponent } from '../components/admin-lists.component';
+import { AdminPricingComponent } from '../components/admin-pricing.component';
+import { AdminReportsComponent } from '../components/admin-reports.component';
+import { AdminAlertsComponent } from '../components/admin-alerts.component';
+import { AdminTotemsComponent } from '../components/admin-totems.component';
+import { AdminLprComponent } from '../components/admin-lpr.component';
+import { AdminBarriersComponent } from '../components/admin-barriers.component';
+import { PixPaymentComponent } from '../components/pix-payment.component';
+import { CardPaymentComponent } from '../components/card-payment.component';
 
 import { AuthService } from '../services/auth.service';
 import { DataService } from '../services/data.service';
@@ -26,6 +34,7 @@ import { ErrorHandlerService } from '../services/error-handler.service';
 import { NotifierService } from '../services/notifier.service';
 import { PhoneUtilService } from '../services/phone-util.service';
 import { PlateUtilService } from '../services/plate-util.service';
+import { AdminService } from '../services/admin.service';
 
 @NgModule({
   declarations: [
@@ -38,17 +47,26 @@ import { PlateUtilService } from '../services/plate-util.service';
     TicketViewComponent,
     NotifierComponent,
     InvalidRouteComponent,
-    UnauthorizedComponent
+    UnauthorizedComponent,
+    AdminDashboardComponent,
+    AdminValetsComponent,
+    AdminListsComponent,
+    AdminPricingComponent,
+    AdminReportsComponent,
+    AdminAlertsComponent,
+    AdminTotemsComponent,
+    AdminLprComponent,
+    AdminBarriersComponent,
+    PixPaymentComponent,
+    CardPaymentComponent
   ],
   imports: [
     BrowserModule,
     FormsModule,
+    HttpClientModule,
     AppRoutingModule,
     QRCodeModule,
-    NgxSpinnerModule,
-    AngularFireModule.initializeApp(environment.firebase),
-    AngularFirestoreModule,
-    AngularFireStorageModule
+    NgxSpinnerModule
   ],
   providers: [
     AuthService,
@@ -56,7 +74,8 @@ import { PlateUtilService } from '../services/plate-util.service';
     ErrorHandlerService,
     NotifierService,
     PhoneUtilService,
-    PlateUtilService
+    PlateUtilService,
+    AdminService
   ],
   bootstrap: [AppComponent]
 })

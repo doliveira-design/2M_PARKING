@@ -1,20 +1,29 @@
 {
   "name": "functions",
-  "version": "1.0.0",
+  "version": "2.2.0",
   "main": "index.js",
   "scripts": {
-    "serve": "firebase emulators:start --only functions",
-    "deploy": "firebase deploy --only functions",
-    "logs": "firebase functions:log"
+    "start": "node index.js",
+    "dev": "node index.js",
+    "migrate": "node scripts/migrate-all.js",
+    "backup": "powershell -ExecutionPolicy Bypass -File scripts/backup-db.ps1",
+    "build": "powershell -ExecutionPolicy Bypass -File scripts/build.ps1",
+    "deploy": "powershell -ExecutionPolicy Bypass -File scripts/deploy.ps1"
   },
   "engines": {
     "node": "20"
   },
-  "description": "2M Parking Backend - Cloud Functions",
+  "description": "2M Parking Backend - Express + SQL Server",
   "dependencies": {
     "bcryptjs": "^3.0.3",
-    "firebase-admin": "^13.7.0",
-    "firebase-functions": "^7.1.1",
-    "jsonwebtoken": "^9.0.3"
+    "compression": "^1.8.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.4.1",
+    "express": "^4.21.0",
+    "express-rate-limit": "^8.3.2",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "mercadopago": "^2.3.0",
+    "mssql": "^11.0.1"
   }
 }

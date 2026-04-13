@@ -1,188 +1,142 @@
 import { Injectable } from '@angular/core';
-import { AngularFirestore } from '@angular/fire/firestore';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
-import { from } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { Observable, throwError } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 
 import { ErrorHandlerService } from './error-handler.service';
-import { PhoneUtilService } from './phone-util.service';
 import { PlateUtilService } from './plate-util.service';
-
-import * as firebase from 'firebase/app';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DataService {
 
-  constructor(private db: AngularFirestore, private errHandler: ErrorHandlerService, private phoneUtil: PhoneUtilService, private plateUtil: PlateUtilService) {
+  private apiUrl = environment.apiUrl;
+
+  constructor(private http: HttpClient, private errHandler: ErrorHandlerService, private plateUtil: PlateUtilService) {
+  }
+
+  private getHeaders(token?: string): HttpHeaders {
+    let headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    if (token) {
+      headers = headers.set('Authorization', token);
+    }
+    return headers;
   }
 
   getUser(ticketNo, token?) {
-    return from(
-      this.db.collection('tickets').ref
-        .where('ticket_no', '==', ticketNo)
-        .get() as Promise<any>
-    ).pipe(
-      map(snapshot => {
-        if (snapshot.empty) {
-          const err = { status: 404 };
-          this.errHandler.handleError(err);
-          throw err;
-        }
-
-        const ticket = snapshot.docs[0].data();
-
-        return {
-          first_name: ticket.first_name,
-          last_name: ticket.last_name,
-          car: {
-            reg_no: ticket.reg_no,
-            color: ticket.color,
-            manufacturer: ticket.manufacturer,
-            model: ticket.model,
-          },
-          ticket: {
-            paid: ticket.paid,
-            amount: ticket.amount,
-            no: ticket.ticket_no,
-          }
-        };
+    return this.http.get<any>(`${this.apiUrl}/user`, {
+      params: { ticket: ticketNo },
+      headers: this.getHeaders(token)
+    }).pipe(
+      catchError(err => {
+        const error = { status: err.status || 500 };
+        this.errHandler.handleError(error);
+        return throwError(error);
       })
     );
   }
 
-  updatePaymentStatus(ticketNo, token?) {
-    return from(
-      this.db.collection('tickets').ref
-        .where('ticket_no', '==', ticketNo)
-        .get() as Promise<any>
-    ).pipe(
-      switchMap(snapshot => {
-        if (snapshot.empty) {
-          const err = { status: 404 };
-          this.errHandler.handleError(err);
-          throw err;
-        }
-
-        const ticketDoc = snapshot.docs[0];
-        return from(ticketDoc.ref.update({
-          paid: true,
-          status: 'paid',
-          paid_at: firebase.firestore.FieldValue.serverTimestamp()
-        }));
-      }),
-      map(() => ({ message: 'Payment status updated', paid: true }))
-    );
-  }
-
-  getQrCode(ticketNo, token?) {
-    return from(
-      this.db.collection('tickets').ref
-        .where('ticket_no', '==', ticketNo)
-        .get() as Promise<any>
-    ).pipe(
-      map(snapshot => {
-        if (snapshot.empty) {
-          const err = { status: 404 };
-          this.errHandler.handleError(err);
-          throw err;
-        }
-
-        const ticket = snapshot.docs[0].data();
-
-        return {
-          ticket_no: ticket.ticket_no,
-          reg_no: ticket.reg_no,
-          amount: ticket.amount,
-          status: ticket.paid ? 'Pago' : 'Pendente'
-        };
+  updatePaymentStatus(ticketNo, token?, paymentMethod?: string) {
+    const body: any = {};
+    if (paymentMethod) {
+      body.payment_method = paymentMethod;
+    }
+    return this.http.patch<any>(`${this.apiUrl}/user`, body, {
+      params: { ticket: ticketNo },
+      headers: this.getHeaders(token)
+    }).pipe(
+      map(response => response),
+      catchError(err => {
+        const error = { status: err.status || 500 };
+        this.errHandler.handleError(error);
+        return throwError(error);
       })
     );
   }
 
   createTicket(values, token?) {
-    const counterRef = this.db.collection('counters').doc('tickets').ref;
-
-    return from(counterRef.get() as Promise<any>).pipe(
-      switchMap(counterDoc => {
-        let ticketNumber = 1;
-        if (counterDoc.exists) {
-          ticketNumber = counterDoc.data().current + 1;
-        }
-
-        return from(counterRef.set({ current: ticketNumber })).pipe(
-          map(() => ticketNumber)
-        );
-      }),
-      switchMap(ticketNumber => {
-        const ticketNo = 'TKT-' + String(ticketNumber).padStart(6, '0');
-
-        const ticketData = {
-          ticket_no: ticketNo,
-          first_name: values.first_name,
-          last_name: values.last_name,
-          phone_no: this.phoneUtil.formatPhone(values.phone_no),
-          reg_no: this.plateUtil.stripPlate(values.reg_no),
-          manufacturer: values.manufacturer || '',
-          model: values.model || '',
-          color: values.color || '',
-          amount: 25.00,
-          paid: false,
-          status: 'active',
-          created_at: firebase.firestore.FieldValue.serverTimestamp()
-        };
-
-        return from(this.db.collection('tickets').add(ticketData)).pipe(
-          map(() => ({
-            message: 'Ticket created',
-            ticket_no: ticketNo,
-            ticket_data: {
-              ticket_no: ticketNo,
-              first_name: values.first_name,
-              last_name: values.last_name,
-              reg_no: this.plateUtil.stripPlate(values.reg_no),
-              manufacturer: values.manufacturer || '',
-              model: values.model || '',
-              color: values.color || '',
-              amount: 25.00
-            }
-          }))
-        );
+    return this.http.post<any>(`${this.apiUrl}/createTicket`, {
+      first_name: values.first_name,
+      last_name: values.last_name,
+      phone_no: values.phone_no,
+      reg_no: values.reg_no,
+      manufacturer: values.manufacturer || '',
+      model: values.model || '',
+      color: values.color || ''
+    }, {
+      headers: this.getHeaders(token)
+    }).pipe(
+      catchError(err => {
+        const error = { status: err.status || 500, message: err.error ? err.error.error : null };
+        this.errHandler.handleError(error);
+        return throwError(error);
       })
     );
   }
 
-  searchByPlate(regNo: string) {
+  searchByPlate(regNo: string, token?) {
     const plate = this.plateUtil.stripPlate(regNo);
-    return from(
-      this.db.collection('tickets').ref
-        .where('reg_no', '==', plate)
-        .where('status', 'in', ['active', 'paid'])
-        .orderBy('created_at', 'desc')
-        .limit(1)
-        .get() as Promise<any>
-    ).pipe(
-      map(snapshot => {
-        if (snapshot.empty) {
-          const err = { status: 404 };
-          this.errHandler.handleError(err);
-          throw err;
-        }
+    return this.http.get<any>(`${this.apiUrl}/plateCheck`, {
+      params: { reg_no: plate },
+      headers: this.getHeaders(token)
+    }).pipe(
+      catchError(err => {
+        const error = { status: err.status || 500 };
+        this.errHandler.handleError(error);
+        return throwError(error);
+      })
+    );
+  }
 
-        const ticket = snapshot.docs[0].data();
-        return {
-          ticket_no: ticket.ticket_no,
-          first_name: ticket.first_name,
-          last_name: ticket.last_name,
-          reg_no: ticket.reg_no,
-          manufacturer: ticket.manufacturer,
-          model: ticket.model,
-          color: ticket.color,
-          amount: ticket.amount,
-          paid: ticket.paid,
-          status: ticket.status
-        };
+  exitVehicle(ticketNo: string, token?: string) {
+    return this.http.post<any>(`${this.apiUrl}/exit`, {
+      ticket_no: ticketNo
+    }, {
+      headers: this.getHeaders(token)
+    }).pipe(
+      catchError(err => {
+        const error = { status: err.status || 500 };
+        this.errHandler.handleError(error);
+        return throwError(error);
+      })
+    );
+  }
+
+  generatePix(ticketNo: string) {
+    return this.http.post<any>(`${this.apiUrl}/api/v1/pix/generate`, {
+      ticket_no: ticketNo
+    }, {
+      headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+    }).pipe(
+      catchError(err => {
+        const error = { status: err.status || 500, message: err.error ? err.error.error : 'Erro ao gerar PIX' };
+        return throwError(error);
+      })
+    );
+  }
+
+  getPixStatus(gatewayId: string) {
+    return this.http.get<any>(`${this.apiUrl}/api/v1/pix/status/${gatewayId}`).pipe(
+      catchError(err => {
+        const error = { status: err.status || 500 };
+        return throwError(error);
+      })
+    );
+  }
+
+  authorizeCard(ticketNo: string, cardToken: string, installments?: number, payerEmail?: string) {
+    const body: any = { ticket_no: ticketNo, card_token: cardToken };
+    if (installments) { body.installments = installments; }
+    if (payerEmail) { body.payer_email = payerEmail; }
+    return this.http.post<any>(`${this.apiUrl}/api/v1/card/authorize`, body, {
+      headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+    }).pipe(
+      catchError(err => {
+        const error = { status: err.status || 500, message: err.error ? err.error.error : 'Erro no pagamento' };
+        return throwError(error);
       })
     );
   }
