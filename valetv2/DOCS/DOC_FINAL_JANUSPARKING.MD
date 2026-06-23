@@ -2,7 +2,7 @@
 
 > **Sistema de gestão de estacionamento / valet** com tickets eletrônicos, pagamento (presencial, PIX e cartão), totem de autoatendimento, reconhecimento de placas (LPR) e controle de cancelas.
 >
-> **Identificador técnico no código-fonte:** `2M Parking` (versão da API: **v2.2.0**). O nome comercial adotado nesta documentação é **Janus Parking**. Todos os nomes técnicos (banco `MParking`, pastas, variáveis) permanecem como estão no código.
+> **Identificador técnico no código-fonte:** `2M Parking` (versão da API: **v2.3.0**). O nome comercial adotado nesta documentação é **Janus Parking**. Todos os nomes técnicos (banco `MParking`, pastas, variáveis) permanecem como estão no código.
 
 ---
 
@@ -112,7 +112,7 @@ A API versionada em grande parte **reescreve a requisição** e a repassa intern
 
 ## 3. Backend (API)
 
-**Arquivo único:** [valetv2/functions/index.js](../functions/index.js) (~3.450 linhas). Versão `APP_VERSION = "2.2.0"`.
+**Arquivo único:** [valetv2/functions/index.js](../functions/index.js) (~3.450 linhas). Versão `APP_VERSION = "2.3.0"`.
 
 ### 3.1 Inicialização e infraestrutura interna
 
@@ -647,7 +647,7 @@ valetv2/
 
 Itens que **não estão definidos no código** (não foram inventados — registrados para esclarecimento):
 
-1. **Nome "Janus" × "2M Parking":** o código, o banco (`MParking`) e os logs usam **"2M Parking" (v2.2.0)**. O nome "Janus" aparece apenas no nome deste arquivo. Adotamos "Janus Parking" como nome comercial conforme orientação, mas os identificadores técnicos seguem como "2M/MParking".
+1. **Nome "Janus" × "2M Parking":** o código, o banco (`MParking`) e os logs usam **"2M Parking" (v2.3.0)**. O nome "Janus" aparece apenas no nome deste arquivo. Adotamos "Janus Parking" como nome comercial conforme orientação, mas os identificadores técnicos seguem como "2M/MParking".
 2. **`README.md` da raiz desatualizado:** descreve o **projeto original** (em inglês, de terceiro) cujo fluxo enviava o ticket por **SMS**. O sistema atual **não possui envio de SMS** (não há Twilio/SMS/e-mail no backend). Esse README não reflete o sistema atual.
 3. **Entrega do ticket ao cliente:** não há envio automático (SMS/e-mail) no código. Presume-se exibição em tela/QR ou impressão — **forma exata não determinada**.
 4. **Primeiro usuário admin:** as migrações **não criam** um admin inicial e o antigo `POST /setupValet` foi removido. A forma de criar o primeiro `admin` (provável inserção manual com hash bcrypt na tabela `valets`) **não está definida no código**.
@@ -656,4 +656,4 @@ Itens que **não estão definidos no código** (não foram inventados — regist
 
 ---
 
-> **Documento gerado a partir da leitura do código-fonte** (backend `functions/index.js`, migrações, frontend Angular, scripts e configs). Versão da API documentada: **2.2.0**. Sempre que houver divergência, o código-fonte prevalece.
+> **Documento gerado a partir da leitura do código-fonte** (backend `functions/index.js`, migrações, frontend Angular, scripts e configs). Versão da API documentada: **2.3.0**. Sempre que houver divergência, o código-fonte prevalece.

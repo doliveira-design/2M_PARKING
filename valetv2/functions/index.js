@@ -13,7 +13,7 @@ const fs = require("fs");
 const crypto = require("crypto");
 const os = require("os");
 
-const APP_VERSION = "2.2.0";
+const APP_VERSION = "2.3.0";
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
 
 // ============================================

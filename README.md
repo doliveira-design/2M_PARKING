@@ -2,7 +2,7 @@
 
 Sistema de **gestão de estacionamento / valet** com tickets eletrônicos, pagamento (presencial, PIX e cartão), totem de autoatendimento, reconhecimento de placas (LPR) e controle de cancelas.
 
-> **Identificador técnico no código-fonte:** `2M Parking` (API **v2.2.0**, banco de dados `MParking`). "Janus Parking" é o nome comercial; os nomes técnicos (pastas, banco, variáveis) permanecem como estão no código.
+> **Identificador técnico no código-fonte:** `2M Parking` (API **v2.3.0**, banco de dados `MParking`). "Janus Parking" é o nome comercial; os nomes técnicos (pastas, banco, variáveis) permanecem como estão no código.
 
 📘 **Documentação completa:** [valetv2/DOCS/DOC_FINAL_JANUSPARKING.MD](valetv2/DOCS/DOC_FINAL_JANUSPARKING.MD)
 
