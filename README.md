@@ -1,66 +1,122 @@
-# Valet Ticketing Application 🚙🅿🎫
+# 🅿️ Janus Parking
 
-This is a single page application designed and developed as a prototype for a friend. This is the second iteration of the application. I worked on all aspects of the application, from figuring out the flow and architecture, to making wireframes, to implementing the backend REST API and creating the front-end application for the complete functionality. I will be talking about the thought process behind the frontend implementation here.
+Sistema de **gestão de estacionamento / valet** com tickets eletrônicos, pagamento (presencial, PIX e cartão), totem de autoatendimento, reconhecimento de placas (LPR) e controle de cancelas.
 
-## The problem/challenge
-The problem that had to be solved was to automate the process of handing out valet parking tickets. Upon an analysis of the problem, I found that the main objectives that had to be achieved were to:
+> **Identificador técnico no código-fonte:** `2M Parking` (API **v2.2.0**, banco de dados `MParking`). "Janus Parking" é o nome comercial; os nomes técnicos (pastas, banco, variáveis) permanecem como estão no código.
 
-* Create a way of identifying users when generating tickets
-* Figure out what kind of data needs to be stored about the users
-* Provide an interface for valets to generate tickets for users digitally by entering their information
-* Provide a way for transferring the ticket over to the users
-* Provide users with a way to view their digital tickets and pay for them
-* Provide a way for valets to verify if the payment for the user's ticket has been made
+📘 **Documentação completa:** [valetv2/DOCS/DOC_FINAL_JANUSPARKING.MD](valetv2/DOCS/DOC_FINAL_JANUSPARKING.MD)
 
-I got a general idea from my friend about what the flow should be (including the requirement to send users their tickets via SMS), which I then incorporated into one complete application.
+---
 
-## How I implemented the solution 👩‍💻
-After figuring out the main objectives, I did some research about what technology could be used and decided the complete flow of the application.
+## ✨ Principais recursos
 
-### The basic flow of the application
-The application has 2 parts:
-* One part can only be accessed by the valet(s) to generate digital tickets
-* The other part can be accessed by users to view their generated valet tickets, pay for their tickets, and get a verification code (QR Code) from the application - to show to the valet
+- **Tickets eletrônicos** com QR Code (entrada, pagamento e saída).
+- **Pagamentos**: presencial (dinheiro/cartão/PIX/cortesia), **PIX** e **cartão** online via Mercado Pago.
+- **Totem** de autoatendimento (pagamento por quiosque).
+- **LPR** (reconhecimento de placas) com entrada/saída automáticas.
+- **Cancelas** (barreiras) com acionamento por pagamento, LPR ou manual.
+- **Listas** de cortesia (whitelist) e bloqueio (blacklist).
+- **Painel administrativo**: dashboard, relatórios, tarifação, usuários/papéis, alertas e dispositivos.
+- **Tarifação configurável** (valor/hora, teto diário, tolerância, período de carência).
+- **Segurança**: JWT, papéis, rate limiting, auditoria, anti-SSRF e validação de webhook.
 
-When users arrive at a valet parking area, the valet will take their details (name, phone number, car details, license plate number) and generate a ticket for them. The user will then receive a text message on the phone number they provided, giving them a link to view their ticket. At this point, the user can leave the car with the valet.
+---
 
-The user can then open up the link when they need to pay for their ticket. Afterwards, they will get a QR Code for ticket verification (verifying the details of their car and ticket payment status). While collecting their car from the valet, the user will need to show the verification code they received to the valet. The valet will verify the information of the car and check payment details (by scanning the QR Code) and then the user can take their car.
+## 🧱 Stack tecnológico
 
-### Backend Implementation
-You can [read details of the backend implementation here](https://github.com/mahamshahid18/valet-app-v2-backend)
+| Camada | Tecnologia |
+|---|---|
+| Frontend | **Angular 7** (TypeScript, SCSS), `angularx-qrcode`, `ngx-spinner` |
+| Backend | **Node.js 20 + Express 4** (`functions/index.js`) |
+| Banco de dados | **Microsoft SQL Server** (banco `MParking`) |
+| Pagamentos | **Mercado Pago** (PIX + cartão); modo *sandbox/mock* sem token |
+| Infra | **Docker** (Nginx + Node via Supervisor) ou **Windows/IIS + PM2** |
 
-### Frontend Implementation 👩‍💻📱
-I chose to implement the application in Angular framework - with standard HTML and SASS. 3rd party libraries used include [`angularx-qrcode`](https://www.npmjs.com/package/angularx-qrcode), and [`ngx-spinner`](https://www.npmjs.com/package/ngx-spinner) for generating qr-codes and loading animations respectively.
+---
 
-#### UI
-I decided to keep a simple and clean look for the UI, taking some inspiration from material design and modern web design. The focus was on making the information easily readable and having a natural flow of the whole ticketing process - from ticket generation to payment, to ticket verification instead of going for something fancy.
+## 📁 Estrutura do projeto
 
-I first created paper wireframes and then implemented these as component templates (along with styling). The design is responsive, without the need for media queries. Scoped styles are being used. There are some global styles for the whole application, and other component specific styles are available in their respective files. Form validation and error messages are also implemented in the whole application.
+```
+2M_PARKING-main/
+├── README.md
+└── valetv2/
+    ├── Dockerfile / docker-compose.yml / nginx.conf / supervisord.conf
+    ├── web.config / proxy.conf.json / angular.json / package.json
+    ├── DOCS/DOC_FINAL_JANUSPARKING.MD     # documentação completa
+    ├── functions/                         # BACKEND
+    │   ├── index.js                       # toda a API
+    │   ├── ecosystem.config.js            # PM2
+    │   └── scripts/                        # migrate-all.js, build/deploy/backup/monitor
+    ├── src/                               # FRONTEND (Angular)
+    │   ├── app/ (components, templates, services, modules, tests)
+    │   ├── environments/ / styles/
+    └── e2e/                               # testes end-to-end
+```
 
-Here's an image of the folder structure for templates and styles:
+---
 
-![Image of styles and templates folder structure](https://user-images.githubusercontent.com/12479952/45777878-75972980-bc70-11e8-8f5e-3de77a510879.PNG)
+## 🚀 Como executar
 
-#### Services
-There are 5 helper services available in this project:
+### Opção A — Docker (recomendado)
 
-* **`Auth Service:`** contains all the logic for logging in valets (for generating tickets) and users (for viewing & paying for tickets)
-* **`Data Service:`** contains all the logic related to fetching data from the backend and sending data to the backend
-* **`Error Handler Service:`** this is a generic error handler which both auth service and data service use for error handling behavior (such as displaying a message or navigating to another URL)
-* **`Token Utility Service:`** contains helpers for storing and retrieving tokens from the client storage
-* **`UI Notification Service:`** contains functions to let components display error, success or info message notifications when certain actions are performed (like toast notifications)
+```powershell
+cd valetv2
+Copy-Item .env.docker.example .env.docker   # preencha SA_PASSWORD, JWT_SECRET, SETUP_KEY...
+docker-compose --env-file .env.docker up --build
+```
 
-#### Components
-The application was split into a number of components (total `10` inlcuding the AppComponent - which is the parent component for all other components) to follow a maintainable component based design, where each component was tasked with accomplishing one task. For example, the `UserLoginComponent` is only concerned with authenticating and logging in a user. After that, the next component takes over. The components have been named as such to make it easier to comprehend what their purpose is.
+Sobe o **SQL Server 2022** + a aplicação (Nginx + backend) na porta **80**.
 
-Please take a look at the source code for more details about the functionality of each.
+### Opção B — Local (desenvolvimento)
 
-#### Modules
- Other than Angular's core functionalities, the `FormsModule`, `HttpClientModule`, and `RoutingModule` were used. 2 3rd party modules were also used (as mentioned before).
+**Backend:**
+```powershell
+cd valetv2/functions
+Copy-Item .env.example .env                 # configure DB_*, JWT_SECRET, SETUP_KEY
+npm install
+npm run migrate                             # cria/atualiza o schema do banco
+npm run dev                                 # http://localhost:3000
+```
 
-## Demo 💻
-A live demo of the application is not be possible because there is a restriction on which phone numbers can receive an SMS from the backend (your phone number is required to receive a valet ticket and view the whole flow of the application). If you want to see a live demo, please contact me.
+**Frontend:**
+```powershell
+cd valetv2
+npm install
+npm start                                   # http://localhost:4200 (proxy → :3000)
+```
 
-You can also take a [**look at the video demo of the application here**](https://vimeo.com/293048162).
+> Após migrar, é necessário **criar o primeiro usuário admin** manualmente — não há seed automático (ver [Pendências](#-pendências--avisos)).
 
-Please let me know if you have any questions about this project or if you want to discuss anything related to my other projects 😄
+### Opção C — Windows / IIS + PM2 (produção)
+
+Use os scripts em `valetv2/functions/scripts/`: `build.ps1` (compila o front), `deploy.ps1` (migra, publica em `C:\inetpub\2mparking` e reinicia o PM2), `backup-db.ps1` e `monitor.ps1`. Detalhes na [documentação](valetv2/DOCS/DOC_FINAL_JANUSPARKING.MD).
+
+---
+
+## ⚙️ Variáveis de ambiente (backend)
+
+Modelo em `valetv2/functions/.env.example`. Principais:
+
+| Variável | Descrição |
+|---|---|
+| `PORT` | Porta do backend (padrão `3000`) |
+| `DB_SERVER` / `DB_PORT` / `DB_NAME` / `DB_USER` / `DB_PASSWORD` | Conexão com o SQL Server |
+| `JWT_SECRET` | Segredo de assinatura do JWT *(obrigatório em produção)* |
+| `SETUP_KEY` | Chave de setup *(obrigatório em produção)* |
+| `CORS_ORIGINS` | Origens permitidas (separadas por vírgula) |
+| `MP_ACCESS_TOKEN` | Token do Mercado Pago (sem ele = *sandbox mock*) |
+| `MP_WEBHOOK_SECRET` | Segredo para validar o webhook |
+
+---
+
+## ⚠️ Pendências / Avisos
+
+- **Primeiro admin** não é criado automaticamente pelas migrações (e o antigo `setupValet` foi removido): crie o usuário inicial manualmente no banco.
+- **Sem envio de SMS/e-mail**: o sistema atual **não** envia o ticket por mensagem — diferentemente do projeto original.
+- **Troque os segredos padrão** (`JWT_SECRET`, `SETUP_KEY`, senha do banco) antes de ir para produção.
+
+A lista completa de divergências está na **seção 12** da [documentação](valetv2/DOCS/DOC_FINAL_JANUSPARKING.MD#12-pendências-e-divergências).
+
+---
+
+> Documentação e este README foram gerados a partir da leitura do código-fonte. Em caso de divergência, **o código-fonte prevalece**.
